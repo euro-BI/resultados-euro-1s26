@@ -693,13 +693,13 @@ function slideOrigem(der){
     </div>
     <div class="stat-block" style="position:absolute;left:800px;top:200px;width:428px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);">
       <div class="label" style="color:var(--ice-mid);">Captação líquida acumulada 1S26</div>
-      <div class="value" style="color:var(--white);">${fmtMoneyMMabs(der.totalCapLiquidaOrigem)}</div>
+      <div class="value" style="color:var(--white);">${fmtMoneyMMabs(der.totalCapLiquidaOrigem, 1)}</div>
       <div class="sub" style="color:var(--ice-mid);">Resultado positivo em ${der.mesesPositivos} dos 6 meses</div>
     </div>
     <div class="card" style="position:absolute;left:800px;top:380px;width:428px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);">
       <div class="label" style="margin-bottom:10px;color:var(--ice-mid);">Representatividade na captação</div>
-      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--gold);">${pct(der.repNNM,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalNNM)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">dinheiro novo (NNM)</span></div>
-      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--white);margin-top:6px;">${pct(der.repTransf,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalTransf)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">transferência de custódia</span></div>
+      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--gold);">${pct(der.repNNM,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalNNM, 1)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">dinheiro novo (NNM)</span></div>
+      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--white);margin-top:6px;">${pct(der.repTransf,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalTransf, 1)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">transferência de custódia</span></div>
     </div>
   `;
 }
@@ -712,15 +712,15 @@ function slideBrutaLiq(der){
     </div>
     <div class="card" style="position:absolute;left:820px;top:200px;width:408px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-left:4px solid #708BEB;">
       <div class="label" style="color:var(--ice-mid);">Captação bruta (1S26)</div>
-      <div class="value" style="font-size:21px;color:var(--white);">${fmtMoneyMMabs(der.totalBruta)}</div>
+      <div class="value" style="font-size:21px;color:var(--white);">${fmtMoneyMMabs(der.totalBruta, 1)}</div>
     </div>
     <div class="card" style="position:absolute;left:820px;top:305px;width:408px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-left:4px solid var(--red);">
       <div class="label" style="color:var(--ice-mid);">Churn (1S26)</div>
-      <div class="value" style="font-size:21px;color:var(--red);">${fmtMoneyMM(der.totalChurn)}</div>
+      <div class="value" style="font-size:21px;color:var(--red);">${fmtMoneyMM(der.totalChurn, 1)}</div>
     </div>
     <div class="card" style="position:absolute;left:820px;top:410px;width:408px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-left:4px solid var(--gold);">
       <div class="label" style="color:var(--ice-mid);">Captação líquida (1S26)</div>
-      <div class="value" style="font-size:21px;color:var(--gold);">${fmtMoneyMMabs(der.totalLiquidaBC)}</div>
+      <div class="value" style="font-size:21px;color:var(--gold);">${fmtMoneyMMabs(der.totalLiquidaBC, 1)}</div>
     </div>
   `;
 }
