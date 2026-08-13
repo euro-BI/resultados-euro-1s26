@@ -180,31 +180,6 @@
   .present-counter {
     color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; letter-spacing: 1px;
   }
-
-  @media (max-width: 768px) {
-    .present-stage { align-items: flex-start !important; overflow-y: auto !important; padding-bottom: 80px; }
-    .present-slide-holder { width: 100vw !important; height: auto !important; min-height: 100vh !important; }
-    .slide { 
-      width: 100% !important; height: auto !important; min-height: 100vh !important; 
-      display: flex !important; flex-direction: column !important; gap: 20px !important; 
-      padding: 20px !important; padding-bottom: 100px !important; 
-    }
-    
-    .slide > div:not(.bg-layer) {
-      position: relative !important; left: auto !important; top: auto !important; 
-      right: auto !important; bottom: auto !important;
-      width: 100% !important; height: auto !important;
-      transform: none !important; margin: 0 !important;
-    }
-    
-    .slide > div.bg-layer {
-      position: absolute !important; left: 0 !important; top: 0 !important; 
-      width: 100% !important; height: 100% !important; z-index: 0 !important;
-    }
-    
-    canvas { width: 100% !important; height: auto !important; }
-    .present-nav-bar { width: 90%; justify-content: space-between; bottom: 10px; }
-  }
 </style>
 </head>
 <body>
@@ -593,7 +568,7 @@ function footerLight(n){
 
 function slideCapa(){
   return `
-    <div class="bg-layer" style="position:absolute;left:0;top:0;width:100%;height:100%;background:url('capa_bg.png') center/cover no-repeat;"></div>
+    <div style="position:absolute;left:0;top:0;width:100%;height:100%;background:url('capa_bg.png') center/cover no-repeat;"></div>
     
     <!-- Títulos superiores -->
     <div style="position:absolute;left:0;top:180px;width:100%;text-align:center;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:6px;text-transform:uppercase;text-shadow:0 4px 12px rgba(0,0,0,0.8);">JANEIRO — JUNHO 2026</div>
@@ -835,6 +810,13 @@ function slideConclusao(der){
 /* =========================================================
    CHARTS
 ========================================================= */
+const progressiveAnimation = {
+  x: { type: 'number', easing: 'linear', duration: 250, from: NaN, delay: (ctx) => { if (ctx.type !== 'data' || ctx.xStarted) return 0; ctx.xStarted = true; return ctx.index * 250; } },
+  y: { type: 'number', easing: 'linear', duration: 250, 
+       from: (ctx) => { if(ctx.index === 0) return ctx.chart.scales.y ? ctx.chart.scales.y.getPixelForValue(ctx.chart.scales.y.min) : 0; const meta = ctx.chart.getDatasetMeta(ctx.datasetIndex); return (meta && meta.data[ctx.index - 1]) ? meta.data[ctx.index - 1].getProps(['y'], true).y : 0; },
+       delay: (ctx) => { if (ctx.type !== 'data' || ctx.yStarted) return 0; ctx.yStarted = true; return ctx.index * 250; } 
+  }
+};
 function chartAuc(der, host){
   const ctx = host.querySelector('#chart-auc');
   if(!ctx) return;
@@ -862,6 +844,7 @@ function chartAuc(der, host){
       },
     ]},
     options: baseChartOptions({
+      animation: progressiveAnimation,
       layout:{ padding:{top:25} },
       plugins:{
         legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11},color:'rgba(255,255,255,0.8)'}},
@@ -947,6 +930,7 @@ function chartRoa(host){
     plugins: [ChartDataLabels],
     data:{ labels:MONTHS, datasets:[{data:DATA.roa, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:3, pointRadius:5, tension:0}] },
     options: baseChartOptions({
+      animation: progressiveAnimation,
       layout:{ padding:{top:25} },
       plugins:{
         legend:{display:false},
@@ -1023,6 +1007,7 @@ function chartValuation(host){
       }
     ] },
     options: baseChartOptions({
+      animation: progressiveAnimation,
       layout:{ padding:{top:45} },
       plugins:{
         legend:{display:false},
@@ -1049,13 +1034,9 @@ function renderPreview(){
 
 function renderPresent(){
   const inner = document.getElementById('presentInner');
-  if (window.innerWidth <= 768) {
-    inner.style.transform = 'none';
-  } else {
-    // Calcula o scale exato para o slide ocupar 100% da tela preservando a proporção 16:9
-    const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
-    inner.style.transform = `scale(${scale})`;
-  }
+  // Calcula o scale exato para o slide ocupar 100% da tela preservando a proporção 16:9
+  const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  inner.style.transform = `scale(${scale})`;
   buildSlide(presentIndex, inner);
   document.getElementById('presentCounter').textContent = `${presentIndex+1} / ${TABS.length}`;
   document.getElementById('prevBtn').style.opacity = presentIndex === 0 ? '0.2' : '1';
