@@ -810,13 +810,6 @@ function slideConclusao(der){
 /* =========================================================
    CHARTS
 ========================================================= */
-const progressiveAnimation = {
-  x: { type: 'number', easing: 'linear', duration: 250, from: NaN, delay: (ctx) => { if (ctx.type !== 'data' || ctx.xStarted) return 0; ctx.xStarted = true; return ctx.index * 250; } },
-  y: { type: 'number', easing: 'linear', duration: 250, 
-       from: (ctx) => { if(ctx.index === 0) return ctx.chart.scales.y ? ctx.chart.scales.y.getPixelForValue(ctx.chart.scales.y.min) : 0; const meta = ctx.chart.getDatasetMeta(ctx.datasetIndex); return (meta && meta.data[ctx.index - 1]) ? meta.data[ctx.index - 1].getProps(['y'], true).y : 0; },
-       delay: (ctx) => { if (ctx.type !== 'data' || ctx.yStarted) return 0; ctx.yStarted = true; return ctx.index * 250; } 
-  }
-};
 function chartAuc(der, host){
   const ctx = host.querySelector('#chart-auc');
   if(!ctx) return;
@@ -828,7 +821,15 @@ function chartAuc(der, host){
     data:{ labels:MONTHS, datasets:[
       {
         label:'Objetivo', data:DATA.aucObjetivo, borderColor:'#FFFFFF', backgroundColor:'#FFFFFF', tension:0, pointRadius:4, borderWidth:3,
-        datalabels:{ display:false }
+        datalabels:{
+          align: 'bottom', anchor: 'center', offset: 8,
+          backgroundColor: 'rgba(255,255,255,0.15)',
+          borderRadius: 4,
+          color: '#fff',
+          font: {size: 10, weight: 'bold'},
+          padding: {top:3, bottom:3, left:5, right:5},
+          formatter: v => Math.round(v)
+        }
       },
       {
         label:'Realizado', data:DATA.aucRealizado, borderColor:'#FAC017', backgroundColor:'#FAC017', tension:0, pointRadius:4, borderWidth:3,
@@ -844,7 +845,6 @@ function chartAuc(der, host){
       },
     ]},
     options: baseChartOptions({
-      animation: progressiveAnimation,
       layout:{ padding:{top:25} },
       plugins:{
         legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11},color:'rgba(255,255,255,0.8)'}},
@@ -930,7 +930,6 @@ function chartRoa(host){
     plugins: [ChartDataLabels],
     data:{ labels:MONTHS, datasets:[{data:DATA.roa, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:3, pointRadius:5, tension:0}] },
     options: baseChartOptions({
-      animation: progressiveAnimation,
       layout:{ padding:{top:25} },
       plugins:{
         legend:{display:false},
@@ -1007,7 +1006,6 @@ function chartValuation(host){
       }
     ] },
     options: baseChartOptions({
-      animation: progressiveAnimation,
       layout:{ padding:{top:45} },
       plugins:{
         legend:{display:false},
