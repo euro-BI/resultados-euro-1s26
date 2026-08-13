@@ -687,16 +687,16 @@ function slideAtivacoes(der){
 
 function slideOrigem(der){
   return `
-    <div style="position:absolute;left:52px;top:200px;width:610px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+    <div style="position:absolute;left:52px;top:200px;width:710px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
       <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Captação líquida por origem (R$ MM)</div>
-      <canvas id="chart-origem" width="580" height="330"></canvas>
+      <canvas id="chart-origem" width="680" height="330"></canvas>
     </div>
-    <div class="stat-block" style="position:absolute;left:700px;top:200px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);">
+    <div class="stat-block" style="position:absolute;left:800px;top:200px;width:428px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);">
       <div class="label" style="color:var(--ice-mid);">Captação líquida acumulada 1S26</div>
       <div class="value" style="color:var(--white);">${fmtMoneyMMabs(der.totalCapLiquidaOrigem)}</div>
       <div class="sub" style="color:var(--ice-mid);">Resultado positivo em ${der.mesesPositivos} dos 6 meses</div>
     </div>
-    <div class="card" style="position:absolute;left:700px;top:380px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);">
+    <div class="card" style="position:absolute;left:800px;top:380px;width:428px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);">
       <div class="label" style="margin-bottom:10px;color:var(--ice-mid);">Representatividade na captação</div>
       <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--gold);">${pct(der.repNNM,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalNNM)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">dinheiro novo (NNM)</span></div>
       <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--white);margin-top:6px;">${pct(der.repTransf,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalTransf)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">transferência de custódia</span></div>
