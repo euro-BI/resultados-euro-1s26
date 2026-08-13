@@ -285,7 +285,7 @@ function computeDerived(d){
   const capLiquidaBrutaChurn = d.bruta.map((v,i)=> v + d.churn[i]);
   const totalBruta = sum(d.bruta);
   const totalChurn = sum(d.churn);
-  const totalLiquidaBC = totalBruta + totalChurn;
+  const totalLiquidaBC = totalCapLiquidaOrigem; // Mantém igual ao slide 5 para evitar erro de arredondamento
   const churnRatio = Math.abs(totalChurn)/totalBruta*100;
 
   d.roa = d.faturamentoRealizado.map((fat, i) => (fat / d.aucRealizado[i]) * 1.2);
