@@ -368,9 +368,9 @@ const TABS = [
   {key:'brutaliq', label:'Bruta vs Líquida'},
   {key:'roa', label:'ROA'},
   {key:'faturamento', label:'Faturamento'},
+  {key:'valuation', label:'Valuation'},
   {key:'paceAuc', label:'Pace AuC'},
-  {key:'paceFat', label:'Pace Faturamento'},
-  {key:'valuation', label:'Valuation'}
+  {key:'paceFat', label:'Pace Faturamento'}
 ];
 
 function renderTabs(){
@@ -577,9 +577,9 @@ function buildSlide(index, host){
   else if(index===5){ el.className='slide dark'; el.style.background = "url('6.png') center/cover no-repeat"; el.innerHTML = slideBrutaLiq(der); }
   else if(index===6){ el.className='slide dark'; el.style.background = "url('7.png') center/cover no-repeat"; el.innerHTML = slideRoa(der); }
   else if(index===7){ el.className='slide dark'; el.style.background = "url('8.png') center/cover no-repeat"; el.innerHTML = slideFaturamento(der); }
-  else if(index===8){ el.className='slide dark'; el.style.background = "url('13.png') center/cover no-repeat"; el.innerHTML = slidePaceAuc(der); }
-  else if(index===9){ el.className='slide dark'; el.style.background = "url('14.png') center/cover no-repeat"; el.innerHTML = slidePaceFaturamento(der); }
-  else if(index===10){ el.className='slide dark'; el.style.background = "url('10.png') center/cover no-repeat"; el.innerHTML = slideValuation(der); }
+  else if(index===8){ el.className='slide dark'; el.style.background = "url('10.png') center/cover no-repeat"; el.innerHTML = slideValuation(der); }
+  else if(index===9){ el.className='slide dark'; el.style.background = "url('13.png') center/cover no-repeat"; el.innerHTML = slidePaceAuc(der); }
+  else if(index===10){ el.className='slide dark'; el.style.background = "url('14.png') center/cover no-repeat"; el.innerHTML = slidePaceFaturamento(der); }
 
   host.appendChild(el);
 
@@ -590,9 +590,9 @@ function buildSlide(index, host){
   if(index===5) chartBrutaLiq(der, host);
   if(index===6) chartRoa(host);
   if(index===7){ chartFaturamento(host); chartMix(host); }
-  if(index===8) chartPaceAuc(der, host);
-  if(index===9) chartPaceFat(der, host);
-  if(index===10) chartValuation(host);
+  if(index===8) chartValuation(host);
+  if(index===9) chartPaceAuc(der, host);
+  if(index===10) chartPaceFat(der, host);
 }
 
 function footerLight(n){
