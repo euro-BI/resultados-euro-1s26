@@ -224,6 +224,7 @@
    DATA MODEL
 ========================================================= */
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+const ALL_MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
 const DEFAULT_DATA = {
   aucBase: 869.79,
@@ -239,7 +240,9 @@ const DEFAULT_DATA = {
   faturamentoRealizado: [594.128,660.701,615.303,760.725,658.229,632.221],
   mixPJ1: 84.9,
   mixPJ2: 15.1,
-  metaPJ2: 15
+  metaPJ2: 15,
+  aucObjetivoAnual: [872.171,887.993,903.621,917.899,932.182,946.519,960.985,974.376,988.007,1000.660,1014.867,1028.147],
+  budgetAnual: [615.428,630.532,645.500,659.523,673.548,687.612,701.765,715.165,728.734,741.617,755.590,768.912]
 };
 
 let DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -365,6 +368,8 @@ const TABS = [
   {key:'brutaliq', label:'Bruta vs Líquida'},
   {key:'roa', label:'ROA'},
   {key:'faturamento', label:'Faturamento'},
+  {key:'paceAuc', label:'Pace AuC'},
+  {key:'paceFat', label:'Pace Faturamento'},
   {key:'valuation', label:'Valuation'}
 ];
 
@@ -506,6 +511,30 @@ function renderEditor(){
       <div class="field-row"><label>Meta PJ2 no ano (%)</label><input type="number" step="0.1" value="${DATA.metaPJ2}" data-field="metaPJ2"></div>
     `;
   }
+  else if(key==='paceAuc'){
+    html = `
+      <h2>Pace AuC 2026 — Ano Completo</h2>
+      <p class="hint">Visão de pace anual dos Ativos sob Custódia (AuC), com objetivo e realizado até o momento.</p>
+      <div class="computed-note">
+        <b>Objetivo Anual (Dez/26):</b> R$ ${fmt(DATA.aucObjetivoAnual[11],3)} MM<br>
+        <b>Realizado Jun/26:</b> R$ ${fmt(DATA.aucRealizado[5],2)} MM<br>
+        <b>Crescimento necessário Jul→Dez:</b> + R$ ${fmt(DATA.aucObjetivoAnual[11]-DATA.aucRealizado[5],3)} MM<br><br>
+        Os dados de objetivo são fixos conforme budget 2026. O realizado usa os mesmos valores do slide AuC (edite lá).
+      </div>
+    `;
+  }
+  else if(key==='paceFat'){
+    html = `
+      <h2>Pace Faturamento 2026 — Ano Completo</h2>
+      <p class="hint">Visão de pace anual do faturamento, com budget mensal e realizado até o momento.</p>
+      <div class="computed-note">
+        <b>Meta Anual de Faturamento:</b> R$ ${fmt(DATA.budgetAnual.reduce((a,b)=>a+b,0),0)}<br>
+        <b>Realizado Acumulado 1S:</b> R$ ${fmt(DATA.faturamentoRealizado.reduce((a,b)=>a+b,0),0)}<br>
+        <b>Faltante p/ Meta (Jul→Dez):</b> R$ ${fmt(DATA.budgetAnual.reduce((a,b)=>a+b,0) - DATA.faturamentoRealizado.reduce((a,b)=>a+b,0),0)}<br><br>
+        Os budgets são fixos conforme planejamento 2026. O realizado usa os mesmos valores do slide Faturamento (edite lá).
+      </div>
+    `;
+  }
   else if(key==='conclusao'){
     html = `
       <h2>Conclusão</h2>
@@ -548,7 +577,9 @@ function buildSlide(index, host){
   else if(index===5){ el.className='slide dark'; el.style.background = "url('6.png') center/cover no-repeat"; el.innerHTML = slideBrutaLiq(der); }
   else if(index===6){ el.className='slide dark'; el.style.background = "url('7.png') center/cover no-repeat"; el.innerHTML = slideRoa(der); }
   else if(index===7){ el.className='slide dark'; el.style.background = "url('8.png') center/cover no-repeat"; el.innerHTML = slideFaturamento(der); }
-  else if(index===8){ el.className='slide dark'; el.style.background = "url('10.png') center/cover no-repeat"; el.innerHTML = slideValuation(der); }
+  else if(index===8){ el.className='slide dark'; el.style.background = "url('13.png') center/cover no-repeat"; el.innerHTML = slidePaceAuc(der); }
+  else if(index===9){ el.className='slide dark'; el.style.background = "url('14.png') center/cover no-repeat"; el.innerHTML = slidePaceFaturamento(der); }
+  else if(index===10){ el.className='slide dark'; el.style.background = "url('10.png') center/cover no-repeat"; el.innerHTML = slideValuation(der); }
 
   host.appendChild(el);
 
@@ -559,7 +590,9 @@ function buildSlide(index, host){
   if(index===5) chartBrutaLiq(der, host);
   if(index===6) chartRoa(host);
   if(index===7){ chartFaturamento(host); chartMix(host); }
-  if(index===8) chartValuation(host);
+  if(index===8) chartPaceAuc(der, host);
+  if(index===9) chartPaceFat(der, host);
+  if(index===10) chartValuation(host);
 }
 
 function footerLight(n){
@@ -597,6 +630,69 @@ function slideValuation(der){
     <div style="position:absolute;left:450px;top:150px;width:780px;height:450px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(8px);border-radius:10px;padding:25px;">
       <div style="font-size:14px;color:var(--ice-mid);text-align:center;margin-bottom:20px;">Valorização da Cota (R$)</div>
       <canvas id="chart-valuation" width="730" height="370"></canvas>
+    </div>
+  `;
+}
+
+function slidePaceAuc(der){
+  const realizadoJunho = DATA.aucRealizado[5];
+  const metaDezembro = DATA.aucObjetivoAnual[11];
+  const crescimentoNecessario = metaDezembro - realizadoJunho;
+  const gapJunho = realizadoJunho - DATA.aucObjetivoAnual[5];
+
+  return `
+    <div class="card" style="position:absolute;left:52px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Meta Anual (Dez/26)</div>
+      <div class="value" style="color:var(--white);font-size:18px;margin-top:2px;">R$ ${fmt(metaDezembro,3)} MM</div>
+    </div>
+    <div class="card" style="position:absolute;left:351px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Realizado Jun/26</div>
+      <div class="value" style="color:var(--white);font-size:18px;margin-top:2px;">R$ ${fmt(realizadoJunho,2)} MM</div>
+    </div>
+    <div class="card" style="position:absolute;left:650px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid ${gapJunho>=0?'var(--green)':'var(--red)'};display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Gap vs Meta Junho</div>
+      <div class="value" style="color:${gapJunho>=0?'var(--green)':'var(--red)'};font-size:18px;margin-top:2px;">${fmtSigned(gapJunho,3)} MM</div>
+    </div>
+    <div class="card" style="position:absolute;left:949px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--green);display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Necessário Jul→Dez</div>
+      <div class="value" style="color:var(--green);font-size:18px;margin-top:2px;">+ ${fmt(crescimentoNecessario,3)} MM</div>
+    </div>
+    <div style="position:absolute;left:52px;top:240px;width:1176px;height:400px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Pace AuC 2026 — Objetivo (linha tracejada) vs. Realizado até Junho (R$ MM)</div>
+      <canvas id="chart-pace-auc" width="1136" height="330"></canvas>
+    </div>
+  `;
+}
+
+function slidePaceFaturamento(der){
+  const totalBudgetAnual = DATA.budgetAnual.reduce((a,b)=>a+b,0);
+  const realizadoAcum1S = DATA.faturamentoRealizado.reduce((a,b)=>a+b,0);
+  const budgetAcum1S = DATA.budgetAnual.slice(0,6).reduce((a,b)=>a+b,0);
+  const ating1S = (realizadoAcum1S / budgetAcum1S * 100);
+  const falta = totalBudgetAnual - realizadoAcum1S;
+
+  const fmtMM = v => v.toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1});
+
+  return `
+    <div class="card" style="position:absolute;left:52px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Meta Anual de Faturamento</div>
+      <div class="value" style="color:var(--white);font-size:18px;margin-top:2px;">R$ ${fmtMM(totalBudgetAnual/1000)} MM</div>
+    </div>
+    <div class="card" style="position:absolute;left:351px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Realizado Acumulado 1S</div>
+      <div class="value" style="color:var(--white);font-size:18px;margin-top:2px;">R$ ${fmtMM(realizadoAcum1S/1000)} MM</div>
+    </div>
+    <div class="card" style="position:absolute;left:650px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid ${ating1S>=100?'var(--green)':'var(--red)'};display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Atingimento 1S vs Budget</div>
+      <div class="value" style="color:${ating1S>=100?'var(--green)':'var(--red)'};font-size:18px;margin-top:2px;">${fmt(ating1S,1)} %</div>
+    </div>
+    <div class="card" style="position:absolute;left:949px;top:150px;width:279px;height:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--green);display:flex;flex-direction:column;justify-content:center;">
+      <div class="label" style="color:var(--ice-mid);font-size:9px;">Faltante p/ Meta (Jul→Dez)</div>
+      <div class="value" style="color:var(--green);font-size:18px;margin-top:2px;">R$ ${fmtMM(falta/1000)} MM</div>
+    </div>
+    <div style="position:absolute;left:52px;top:240px;width:1176px;height:400px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:20px;">
+      <div style="font-size:13px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Pace Faturamento 2026 — Budget Mensal (linha tracejada) vs. Realizado até Junho (R$ milhares)</div>
+      <canvas id="chart-pace-fat" width="1136" height="330"></canvas>
     </div>
   `;
 }
@@ -1012,13 +1108,30 @@ function chartFaturamento(host){
   const rKey = host.id + '-fat';
   destroyChart(rKey);
   chartRegistry[rKey] = new Chart(ctx, {
+    plugins: [ChartDataLabels],
     data:{ labels:MONTHS, datasets:[
-      {type:'bar', label:'Realizado', data:DATA.faturamentoRealizado, backgroundColor:'#708BEB', borderRadius:3},
-      {type:'line', label:'Budget Mensal', data:DATA.budget, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:2, borderDash:[5,4], pointRadius:0},
+      {
+        type:'bar', label:'Realizado', data:DATA.faturamentoRealizado, backgroundColor:'#708BEB', borderRadius:3,
+        datalabels:{
+          display: true,
+          align: 'top', anchor: 'end', offset: 4,
+          color: '#FFFFFF',
+          font: {size: 10, weight: 'bold'},
+          backgroundColor: 'rgba(112,139,235,0.2)',
+          borderRadius: 4,
+          padding: {top:2, bottom:2, left:4, right:4},
+          formatter: v => 'R$ ' + Number(v).toLocaleString('pt-BR', {maximumFractionDigits:0})
+        }
+      },
+      {type:'line', label:'Budget Mensal', data:DATA.budget, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:2, borderDash:[5,4], pointRadius:0, datalabels:{display:false}},
     ]},
     options: baseChartOptions({
-      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}}},
-      scales:{ y:{ grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
+      layout:{ padding:{top:55} },
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}},
+        datalabels: {}
+      },
+      scales:{ y:{ suggestedMax: 860, grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
     })
   });
 }
@@ -1072,6 +1185,178 @@ function chartValuation(host){
       scales:{ 
         y:{ min: 200, max: 450, grid:{color:'rgba(255,255,255,0.05)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, 
         x:{ grid:{color:'rgba(255,255,255,0.05)'}, ticks:{font:{size:10},color:'#FFFFFF'} } 
+      }
+    })
+  });
+}
+
+function chartPaceAuc(der, host){
+  const ctx = host.querySelector('#chart-pace-auc');
+  if(!ctx) return;
+  const rKey = host.id + '-pace-auc';
+  destroyChart(rKey);
+
+  const realizado12 = [...DATA.aucRealizado];
+  while(realizado12.length < 12) realizado12.push(null);
+
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'line',
+    plugins: [ChartDataLabels],
+    data:{ labels: ALL_MONTHS, datasets:[
+      {
+        label:'Objetivo AuC',
+        data: DATA.aucObjetivoAnual,
+        borderColor:'#FFFFFF',
+        backgroundColor:'#FFFFFF',
+        borderWidth: 3,
+        borderDash: [8,5],
+        pointRadius: 4,
+        pointBackgroundColor:'#FFFFFF',
+        tension: 0.1,
+        spanGaps: false,
+        datalabels:{
+          display: true,
+          align: 'top',
+          anchor: 'end',
+          offset: 6,
+          backgroundColor: 'rgba(255,255,255,0.12)',
+          borderRadius: 4,
+          color: '#FFFFFF',
+          font: {size: 9, weight: 'bold'},
+          padding: {top:2, bottom:2, left:4, right:4},
+          formatter: v => v.toFixed(3)
+        }
+      },
+      {
+        label:'Realizado AuC',
+        data: realizado12,
+        borderColor:'#FAC017',
+        backgroundColor:'#FAC017',
+        borderWidth: 4,
+        borderDash: [],
+        pointRadius: 5,
+        pointBackgroundColor:'#FAC017',
+        pointBorderColor:'#FFFFFF',
+        pointBorderWidth: 2,
+        tension: 0.1,
+        spanGaps: true,
+        datalabels:{
+          display: true,
+          align: 'bottom',
+          anchor: 'end',
+          offset: 8,
+          backgroundColor: 'rgba(250,192,23,0.18)',
+          borderRadius: 4,
+          color: '#FFFFFF',
+          font: {size: 10, weight: 'bold'},
+          padding: {top:3, bottom:3, left:5, right:5},
+          formatter: v => v === null ? '' : v.toFixed(2)
+        }
+      }
+    ]},
+    options: baseChartOptions({
+      layout:{ padding:{top:30, right:10, left:10} },
+      plugins:{
+        legend:{display:true,position:'top',labels:{boxWidth:14,font:{size:12},color:'rgba(255,255,255,0.9)'}},
+        datalabels: {}
+      },
+      scales:{
+        y:{
+          min: 840,
+          max: 1060,
+          grid:{color:'rgba(255,255,255,0.08)'},
+          ticks:{font:{size:10},color:'rgba(255,255,255,0.6)', callback: v => v + ' MM'}
+        },
+        x:{
+          grid:{color:'rgba(255,255,255,0.06)'},
+          ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'}
+        }
+      }
+    })
+  });
+}
+
+function chartPaceFat(der, host){
+  const ctx = host.querySelector('#chart-pace-fat');
+  if(!ctx) return;
+  const rKey = host.id + '-pace-fat';
+  destroyChart(rKey);
+
+  const realizado12 = [...DATA.faturamentoRealizado];
+  while(realizado12.length < 12) realizado12.push(null);
+
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'line',
+    plugins: [ChartDataLabels],
+    data:{ labels: ALL_MONTHS, datasets:[
+      {
+        label:'Budget Mensal',
+        data: DATA.budgetAnual,
+        borderColor:'#FFFFFF',
+        backgroundColor:'#FFFFFF',
+        borderWidth: 3,
+        borderDash: [8,5],
+        pointRadius: 4,
+        pointBackgroundColor:'#FFFFFF',
+        tension: 0.1,
+        spanGaps: false,
+        datalabels:{
+          display: true,
+          align: 'top',
+          anchor: 'end',
+          offset: 6,
+          backgroundColor: 'rgba(255,255,255,0.12)',
+          borderRadius: 4,
+          color: '#FFFFFF',
+          font: {size: 9, weight: 'bold'},
+          padding: {top:2, bottom:2, left:4, right:4},
+          formatter: v => v.toFixed(0)
+        }
+      },
+      {
+        label:'Faturamento Realizado',
+        data: realizado12,
+        borderColor:'#FAC017',
+        backgroundColor:'#FAC017',
+        borderWidth: 4,
+        borderDash: [],
+        pointRadius: 5,
+        pointBackgroundColor:'#FAC017',
+        pointBorderColor:'#FFFFFF',
+        pointBorderWidth: 2,
+        tension: 0.1,
+        spanGaps: true,
+        datalabels:{
+          display: true,
+          align: 'bottom',
+          anchor: 'end',
+          offset: 8,
+          backgroundColor: 'rgba(250,192,23,0.18)',
+          borderRadius: 4,
+          color: '#FFFFFF',
+          font: {size: 10, weight: 'bold'},
+          padding: {top:3, bottom:3, left:5, right:5},
+          formatter: v => v === null ? '' : v.toFixed(0)
+        }
+      }
+    ]},
+    options: baseChartOptions({
+      layout:{ padding:{top:30, right:10, left:10} },
+      plugins:{
+        legend:{display:true,position:'top',labels:{boxWidth:14,font:{size:12},color:'rgba(255,255,255,0.9)'}},
+        datalabels: {}
+      },
+      scales:{
+        y:{
+          min: 540,
+          max: 820,
+          grid:{color:'rgba(255,255,255,0.08)'},
+          ticks:{font:{size:10},color:'rgba(255,255,255,0.6)', callback: v => 'R$ ' + Number(v).toLocaleString('pt-BR')}
+        },
+        x:{
+          grid:{color:'rgba(255,255,255,0.06)'},
+          ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'}
+        }
       }
     })
   });

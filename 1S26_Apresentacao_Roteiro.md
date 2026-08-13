@@ -154,3 +154,53 @@ Esta estrutura foi montada para refletir os números do primeiro semestre de 202
 
 **Destaques do Slide:**
 - A cota cresceu de `R$ 257` (set/22) para `R$ 419` (jun/26), mostrando uma forte e consistente valorização da base.
+
+---
+
+## Slide 9: Pace de AuC (Custódia) 2026
+**Objetivo do Slide:** Acompanhar o pace mensal de crescimento dos Ativos sob Custódia (AuC) frente à meta orçada para o ano inteiro de 2026. Meta anual: `R$ 1.028,147 MM` (Crescimento YoY: 18,3%).
+
+| Mês (2026) | Meta AuC (MM) | Realizado AuC (MM) | Diferença vs Meta (MM) | Atingimento (%) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Janeiro** | R$ 872,171 | R$ 860,20 | -11,971 | 98,6 % |
+| **Fevereiro** | R$ 887,993 | R$ 869,65 | -18,343 | 97,9 % |
+| **Março** | R$ 903,621 | R$ 868,62 | -35,001 | 96,1 % |
+| **Abril** | R$ 917,899 | R$ 869,81 | -48,089 | 94,8 % |
+| **Maio** | R$ 932,182 | R$ 886,73 | -45,452 | 95,1 % |
+| **Junho** | R$ 946,519 | R$ 889,56 | -56,959 | 94,0 % |
+| **Julho** | R$ 960,985 | - | - | - |
+| **Agosto** | R$ 974,376 | - | - | - |
+| **Setembro** | R$ 988,007 | - | - | - |
+| **Outubro** | R$ 1.000,660 | - | - | - |
+| **Novembro** | R$ 1.014,867 | - | - | - |
+| **Dezembro** | R$ 1.028,147 | - | - | - |
+
+**Destaques do Slide:**
+- Meta Anual de AuC: `R$ 1.028,147 MM` (YoY +18,3%)
+- Gap atual (Junho): `- R$ 56,959 MM` abaixo da meta
+- Crescimento necessário de Jul/Dez: `+ R$ 138,587 MM` (saindo de R$ 889,56 para R$ 1.028,147)
+
+---
+
+## Slide 10: Pace de Faturamento 2026
+**Objetivo do Slide:** Acompanhar o pace mensal de faturamento frente ao orçamento anual de 2026, com visão mensal e acumulada. Meta anual: `R$ 8.323.926` (Crescimento YoY: 23,4%).
+
+| Mês (2026) | Budget Mensal | Faturamento Realizado | Diferença Mensal | Budget Acumulado | Realizado Acumulado | Atingimento Acum. (%) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Janeiro** | R$ 615.428 | R$ 594.128 | -21.300 | R$ 615.428 | R$ 594.128 | 96,5 % |
+| **Fevereiro** | R$ 630.532 | R$ 660.701 | +30.169 | R$ 1.245.960 | R$ 1.254.828 | 100,7 % |
+| **Março** | R$ 645.500 | R$ 615.303 | -30.197 | R$ 1.891.460 | R$ 1.870.131 | 98,9 % |
+| **Abril** | R$ 659.523 | R$ 760.725 | +101.202 | R$ 2.550.983 | R$ 2.630.855 | 103,1 % |
+| **Maio** | R$ 673.548 | R$ 658.229 | -15.319 | R$ 3.224.531 | R$ 3.289.084 | 102,0 % |
+| **Junho** | R$ 687.612 | R$ 632.221 | -55.391 | R$ 3.912.143 | R$ 3.921.305 | 100,2 % |
+| **Julho** | R$ 701.765 | - | - | R$ 4.613.908 | - | - |
+| **Agosto** | R$ 715.165 | - | - | R$ 5.329.073 | - | - |
+| **Setembro** | R$ 728.734 | - | - | R$ 6.057.807 | - | - |
+| **Outubro** | R$ 741.617 | - | - | R$ 6.799.424 | - | - |
+| **Novembro** | R$ 755.590 | - | - | R$ 7.555.014 | - | - |
+| **Dezembro** | R$ 768.912 | - | - | R$ 8.323.926 | - | - |
+
+**Destaques do Slide:**
+- Meta Anual de Faturamento: `R$ 8.323.926` (YoY +23,4%)
+- Atingimento Acumulado 1S26: `100,2 %` ✅ (acima do orçado em R$ 9.161)
+- Faturamento restante (Jul/Dez): `R$ 4.402.621` necessários para bater a meta anual
