@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eurostock XP — Sistema de Resultados 1S26</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root{
+    --navy:#15161A;
+    --navy-dark:#0A0A0C;
+    --gold:#FFB800;
+    --gold-soft:#FFD459;
+    --ice:#E7ECFB;
+    --ice-mid:#C7D0EC;
+    --ink:#16182B;
+    --muted:#6B7280;
+    --green:#1F9D55;
+    --red:#C4433B;
+    --card-bg:#F4F5FA;
+    --white:#FFFFFF;
+    --border:#E3E6F0;
+    --font-head:'Cambria','Georgia',serif;
+    --font-body:'Calibri','Segoe UI',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-body);
+    background:#F7F8FC;
+    color:var(--ink);
+    min-height:100vh;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 24px;background:var(--navy-dark);color:var(--white);
+    position:sticky;top:0;z-index:50;
+  }
+  .brand{display:flex;flex-direction:column;gap:1px;}
+  .brand .wordmark{font-family:var(--font-head);font-weight:700;font-size:17px;letter-spacing:1.5px;}
+  .brand .wordmark span{color:var(--gold);}
+  .brand .tagline{font-size:9.5px;color:#8891C4;letter-spacing:1.5px;text-transform:uppercase;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;}
+  .btn{
+    font-family:var(--font-body);font-size:12.5px;font-weight:600;
+    border:1px solid transparent;border-radius:7px;padding:8px 14px;
+    cursor:pointer;transition:.15s;white-space:nowrap;
+  }
+  .btn-gold{background:var(--gold);color:var(--navy-dark);}
+  .btn-gold:hover{background:#c9a75c;}
+  .btn-ghost{background:transparent;color:var(--ice);border-color:#3A4380;}
+  .btn-ghost:hover{background:#1B2557;}
+  .btn-ghost.active{background:var(--gold);color:var(--navy-dark);border-color:var(--gold);}
+  .save-status{font-size:11px;color:#8891C4;min-width:110px;}
+
+  /* ---------- Layout ---------- */
+  .workspace{display:none;padding:22px 24px 60px;max-width:1500px;margin:0 auto;}
+  .workspace.active{display:block;}
+
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+  .tab{
+    font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--muted);
+    background:var(--white);border:1px solid var(--border);border-radius:20px;
+    padding:7px 14px;cursor:pointer;transition:.15s;
+  }
+  .tab:hover{border-color:var(--gold);color:var(--navy);}
+  .tab.active{background:var(--navy);color:var(--white);border-color:var(--navy);}
+
+  .editor-grid{display:grid;grid-template-columns:minmax(460px,1fr) minmax(480px,1.5fr);gap:22px;align-items:start;}
+  @media (max-width:1000px){.editor-grid{grid-template-columns:1fr;}}
+
+  .panel{
+    background:var(--white);border:1px solid var(--border);border-radius:12px;
+    padding:20px 22px;
+  }
+  .panel h2{font-family:var(--font-head);font-size:19px;margin:0 0 4px;color:var(--ink);}
+  .panel .hint{font-size:12px;color:var(--muted);margin:0 0 16px;line-height:1.5;}
+
+  .table-scroll{width:100%;overflow-x:auto;padding-bottom:2px;}
+  table.edit-table{width:100%;min-width:460px;border-collapse:collapse;font-size:12.5px;table-layout:fixed;}
+  table.edit-table th{
+    text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.4px;padding:6px 5px;border-bottom:1px solid var(--border);
+  }
+  table.edit-table th:first-child,table.edit-table td.rowlabel{width:92px;}
+  table.edit-table td{padding:5px 4px;border-bottom:1px solid #F0F1F6;}
+  table.edit-table input{
+    width:100%;min-width:56px;font-family:var(--font-body);font-size:11.5px;padding:6px 5px;
+    border:1px solid var(--border);border-radius:6px;color:var(--ink);
+    background:#FBFBFD;
+  }
+  table.edit-table input:focus{outline:none;border-color:var(--gold);background:var(--white);}
+  table.edit-table td.rowlabel{font-weight:600;color:var(--navy);white-space:nowrap;}
+
+  .field-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #F0F1F6;}
+  .field-row:last-child{border-bottom:none;}
+  .field-row label{font-size:12.5px;color:var(--ink);font-weight:600;}
+  .field-row input{
+    width:130px;font-family:var(--font-body);font-size:12.5px;padding:7px 9px;
+    border:1px solid var(--border);border-radius:6px;text-align:right;
+  }
+  .field-row input:focus{outline:none;border-color:var(--gold);}
+
+  .section-label{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--gold);text-transform:uppercase;margin:18px 0 8px;}
+  .section-label:first-child{margin-top:0;}
+
+  .computed-note{
+    margin-top:16px;padding:12px 14px;background:var(--card-bg);border-radius:8px;
+    font-size:11.5px;color:var(--muted);line-height:1.6;
+  }
+  .computed-note b{color:var(--navy);}
+
+  /* ---------- Preview ---------- */
+  .preview-wrap{position:sticky;top:78px;}
+  .preview-frame{
+    width:100%;aspect-ratio:16/9;background:var(--white);border-radius:10px;
+    overflow:hidden;border:1px solid var(--border);box-shadow:0 6px 24px rgba(11,15,38,.08);
+    position:relative;
+  }
+  .preview-inner{
+    width:1280px;height:720px;transform-origin:top left;position:absolute;top:0;left:0;
+  }
+  .preview-caption{margin-top:10px;font-size:11.5px;color:var(--muted);text-align:center;}
+
+  /* ---------- Slide internal styling (shared with present mode) ---------- */
+  .slide{width:1280px;height:720px;position:relative;background:var(--white);overflow:hidden;font-family:var(--font-body);}
+  .slide.dark{background:var(--navy-dark);}
+  .slide .kicker{position:absolute;left:52px;top:40px;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--navy);text-transform:uppercase;}
+  .slide.dark .kicker{color:var(--gold);}
+  .slide .stitle{position:absolute;left:52px;top:64px;right:52px;font-family:var(--font-head);font-weight:700;font-size:27px;color:var(--ink);}
+  .slide.dark .stitle{color:var(--white);}
+  .slide .footer{position:absolute;left:52px;bottom:22px;font-size:9px;color:#9AA3C2;letter-spacing:.5px;}
+  .slide .footer b{color:var(--navy);}
+  .slide.dark .footer b{color:var(--white);}
+  .slide .pageno{position:absolute;right:52px;bottom:22px;font-size:9px;color:#9AA3C2;}
+  .slide .brandmark{position:absolute;right:52px;top:40px;font-family:var(--font-head);font-weight:700;font-size:13px;letter-spacing:1.5px;color:var(--white);}
+  .slide .brandmark span{color:var(--gold);}
+
+  .card{background:var(--card-bg);border-radius:9px;padding:16px 18px;}
+  .card .label{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--muted);text-transform:uppercase;}
+  .card .value{font-family:var(--font-head);font-weight:700;font-size:26px;color:var(--navy);margin:8px 0 4px;}
+  .card .sub{font-size:10.5px;font-weight:700;}
+
+  .stat-block{background:var(--navy);border-radius:9px;padding:18px 20px;color:var(--white);}
+  .stat-block .label{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--ice-mid);text-transform:uppercase;}
+  .stat-block .value{font-family:var(--font-head);font-weight:700;font-size:28px;margin:8px 0 4px;}
+  .stat-block .sub{font-size:11px;font-weight:700;color:var(--gold);}
+
+  /* ---------- Present mode ---------- */
+  .present-overlay{
+    display:none;position:fixed;inset:0;background:var(--navy-dark);z-index:100;
+    align-items:center;justify-content:center;
+  }
+  .present-overlay.active{display:flex;}
+  .present-stage{
+    width:100vw;height:100vh;position:relative;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .present-slide-holder{
+    width:1280px;height:720px;transform-origin:center;
+    position:relative;box-shadow:none;
+  }
+
+  .present-nav-bar {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 20px; z-index: 110;
+    background: rgba(0,0,0,0.5); padding: 8px 24px; border-radius: 30px;
+    backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1);
+  }
+  .present-nav-btn {
+    background: transparent; color: var(--gold); border: none;
+    font-size: 26px; cursor: pointer; padding: 0 5px;
+    transition: color 0.2s; line-height: 1;
+  }
+  .present-nav-btn:hover { color: #FFE066; }
+  .present-counter {
+    color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="wordmark">EUROSTOCK <span>XP</span></div>
+    <div class="tagline">Sistema de Resultados · 1S26</div>
+  </div>
+  <div class="topbar-actions">
+    <span class="save-status" id="saveStatus">carregando…</span>
+    <button class="btn btn-ghost" id="resetBtn">Restaurar dados originais</button>
+    <button class="btn btn-gold" id="presentBtn">▶ Apresentar</button>
+  </div>
+</div>
+
+<div class="workspace active" id="workspace">
+  <div class="tabs" id="tabs"></div>
+  <div class="editor-grid">
+    <div class="panel" id="editorPanel"></div>
+    <div class="preview-wrap">
+      <div class="preview-frame"><div class="preview-inner" id="previewInner"></div></div>
+      <div class="preview-caption">Pré-visualização ao vivo — o que você edita aqui aparece igual na apresentação.</div>
+    </div>
+  </div>
+</div>
+
+<div class="present-overlay" id="presentOverlay">
+  <div class="present-nav-bar">
+    <button class="present-nav-btn" id="prevBtn">‹</button>
+    <span class="present-counter" id="presentCounter">1 / 9</span>
+    <button class="present-nav-btn" id="nextBtn">›</button>
+  </div>
+  
+  <div class="present-stage">
+    <div class="present-slide-holder" id="presentInner"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA MODEL
+========================================================= */
+const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+
+const DEFAULT_DATA = {
+  aucBase: 869.79,
+  aucObjetivo: [872.17,887.99,903.62,917.90,932.18,946.52],
+  aucRealizado: [860.20,869.65,868.62,869.81,886.73,889.56],
+  ativacoes: [5,3,6,7,6,4],
+  nnm: [-1.85,3.00,11.93,9.36,22.28,-2.75],
+  transferencia: [-0.22,-0.34,-5.03,-4.60,3.79,6.87],
+  bruta: [79.90,56.18,64.09,66.25,66.23,58.03],
+  churn: [-55.30,-49.49,-54.97,-58.32,-40.16,-53.61],
+  roa: [0.82,0.92,0.85,1.06,0.90,0.86],
+  budget: [615.428,630.532,645.500,659.523,673.548,687.612],
+  faturamentoRealizado: [594.128,660.701,615.303,760.725,658.229,632.221],
+  mixPJ1: 84.9,
+  mixPJ2: 15.1,
+  metaPJ2: 15
+};
+
+let DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let currentTab = 0;
+let presentIndex = 0;
+const chartRegistry = {};
+const STORAGE_KEY = 'eurostock-1s26-data';
+
+/* =========================================================
+   HELPERS
+========================================================= */
+const sum = (arr) => arr.reduce((a,b)=>a+b,0);
+const avg = (arr) => sum(arr)/arr.length;
+
+function fmt(n, dec=2){
+  return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function fmtSigned(n, dec=2){
+  const s = n>=0 ? '+ ' : '- ';
+  return s + fmt(Math.abs(n),dec);
+}
+function fmtMoneyMM(n, dec=2){ return 'R$ ' + fmtSigned(n,dec) + ' MM'; }
+function fmtMoneyMMabs(n, dec=2){ return 'R$ ' + fmt(n,dec) + ' MM'; }
+function fmtK(n){ return 'R$ ' + fmt(n,0) + ' K'; }
+function pct(n, dec=1){ return fmt(n,dec) + '%'; }
+
+function computeDerived(d){
+  const aucGrowthAbs = d.aucRealizado[5] - d.aucBase;
+  const aucGrowthPct = (aucGrowthAbs / d.aucBase) * 100;
+  const atingimento = d.aucObjetivo.map((o,i)=> (d.aucRealizado[i]/o)*100);
+
+  const totalAtivacoes = sum(d.ativacoes);
+  const mediaAtivacoes = avg(d.ativacoes);
+
+  const capLiquidaPorOrigem = d.nnm.map((v,i)=> v + d.transferencia[i]);
+  const totalNNM = sum(d.nnm);
+  const totalTransf = sum(d.transferencia);
+  const totalCapLiquidaOrigem = totalNNM + totalTransf;
+  const repNNM = totalNNM/totalCapLiquidaOrigem*100;
+  const repTransf = totalTransf/totalCapLiquidaOrigem*100;
+  const mesesPositivos = capLiquidaPorOrigem.filter(v=>v>0).length;
+
+  const capLiquidaBrutaChurn = d.bruta.map((v,i)=> v + d.churn[i]);
+  const totalBruta = sum(d.bruta);
+  const totalChurn = sum(d.churn);
+  const totalLiquidaBC = totalBruta + totalChurn;
+  const churnRatio = Math.abs(totalChurn)/totalBruta*100;
+
+  d.roa = d.faturamentoRealizado.map((fat, i) => (fat / d.aucRealizado[i]) * 1.2);
+
+  const roaMedio = avg(d.roa);
+  const roaMaxIdx = d.roa.indexOf(Math.max(...d.roa));
+  const roaMinIdx = d.roa.indexOf(Math.min(...d.roa));
+
+  const totalBudget = sum(d.budget);
+  const totalRealizado = sum(d.faturamentoRealizado);
+  const atingimentoFat = totalRealizado/totalBudget*100;
+  const variacaoFat = totalRealizado - totalBudget;
+  const diffMensal = d.faturamentoRealizado.map((v,i)=> v - d.budget[i]);
+  const diffMensalPct = diffMensal.map((v,i)=> v/d.budget[i]*100);
+  const acumRealizado = []; const acumBudget = [];
+  d.faturamentoRealizado.reduce((a,v,i)=>{ const s=a+v; acumRealizado.push(s); return s;},0);
+  d.budget.reduce((a,v,i)=>{ const s=a+v; acumBudget.push(s); return s;},0);
+  const bestIdx = diffMensalPct.indexOf(Math.max(...diffMensalPct));
+  const worstIdx = diffMensalPct.indexOf(Math.min(...diffMensalPct));
+
+  return {
+    aucGrowthAbs, aucGrowthPct, atingimento,
+    totalAtivacoes, mediaAtivacoes,
+    capLiquidaPorOrigem, totalNNM, totalTransf, totalCapLiquidaOrigem, repNNM, repTransf, mesesPositivos,
+    capLiquidaBrutaChurn, totalBruta, totalChurn, totalLiquidaBC, churnRatio,
+    roaMedio, roaMaxIdx, roaMinIdx,
+    totalBudget, totalRealizado, atingimentoFat, variacaoFat, diffMensal, diffMensalPct,
+    acumRealizado, acumBudget, bestIdx, worstIdx
+  };
+}
+
+/* =========================================================
+   PERSISTENCE
+========================================================= */
+async function loadData(){
+  const statusEl = document.getElementById('saveStatus');
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      DATA = Object.assign(JSON.parse(JSON.stringify(DEFAULT_DATA)), parsed);
+      statusEl.textContent = 'dados salvos carregados';
+    } else {
+      statusEl.textContent = 'usando dados do fechamento 1S26';
+    }
+  }catch(e){
+    statusEl.textContent = 'usando dados do fechamento 1S26';
+  }
+  setTimeout(()=>{ statusEl.textContent=''; }, 2500);
+}
+
+let saveTimer = null;
+function scheduleSave(){
+  const statusEl = document.getElementById('saveStatus');
+  statusEl.textContent = 'editando…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      const result = await window.storage.set(STORAGE_KEY, JSON.stringify(DATA), false);
+      statusEl.textContent = result ? 'salvo ✓' : 'não foi possível salvar';
+    }catch(e){
+      statusEl.textContent = 'não foi possível salvar';
+    }
+    setTimeout(()=>{ statusEl.textContent=''; }, 2000);
+  }, 500);
+}
+
+/* =========================================================
+   TABS / EDITOR DEFINITION
+========================================================= */
+const TABS = [
+  {key:'capa', label:'Capa'},
+  {key:'img2', label:'Imagem 2'},
+  {key:'auc', label:'AuC'},
+  {key:'ativacoes', label:'Ativações 300K+'},
+  {key:'origem', label:'Captação Origem'},
+  {key:'brutaliq', label:'Bruta vs Líquida'},
+  {key:'roa', label:'ROA'},
+  {key:'faturamento', label:'Faturamento'},
+  {key:'valuation', label:'Valuation'}
+];
+
+function renderTabs(){
+  const wrap = document.getElementById('tabs');
+  wrap.innerHTML = '';
+  TABS.forEach((t,i)=>{
+    const b = document.createElement('button');
+    b.className = 'tab' + (i===currentTab ? ' active' : '');
+    b.textContent = t.label;
+    b.onclick = ()=>{ currentTab = i; renderTabs(); renderEditor(); renderPreview(); };
+    wrap.appendChild(b);
+  });
+}
+
+function monthTableHTML(rows){
+  // rows: [{key, label, arrayName, dec, step}]
+  let html = '<div class="table-scroll"><table class="edit-table"><thead><tr><th></th>';
+  MONTHS.forEach(m=> html += `<th>${m}</th>`);
+  html += '</tr></thead><tbody>';
+  rows.forEach(r=>{
+    html += `<tr><td class="rowlabel">${r.label}</td>`;
+    MONTHS.forEach((m,i)=>{
+      html += `<td><input type="number" step="${r.step||0.01}" value="${DATA[r.arrayName][i]}" data-arr="${r.arrayName}" data-idx="${i}"></td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function bindMonthInputs(container){
+  container.querySelectorAll('input[data-arr]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const arr = inp.getAttribute('data-arr');
+      const idx = parseInt(inp.getAttribute('data-idx'),10);
+      const v = parseFloat(inp.value);
+      DATA[arr][idx] = isNaN(v) ? 0 : v;
+      renderPreview();
+      scheduleSave();
+    });
+  });
+}
+function bindSingleInputs(container){
+  container.querySelectorAll('input[data-field]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const f = inp.getAttribute('data-field');
+      const v = parseFloat(inp.value);
+      DATA[f] = isNaN(v) ? 0 : v;
+      renderPreview();
+      scheduleSave();
+    });
+  });
+}
+
+function renderEditor(){
+  const panel = document.getElementById('editorPanel');
+  const key = TABS[currentTab].key;
+  let html = '';
+
+  if(key==='capa'){
+    html = `
+      <h2>Capa</h2>
+      <p class="hint">Slide de abertura — período fixo em Janeiro–Junho 2026. Os demais campos são editados nas outras abas e refletem automaticamente aqui.</p>
+      <div class="computed-note">Esta aba não tem dados numéricos próprios — é o cartão de rosto da apresentação. Ajuste os indicadores nas abas ao lado e volte aqui para conferir o clima geral no Sumário.</div>
+    `;
+  }
+  else if(key==='img2'){
+    html = `
+      <h2>Imagem 2</h2>
+      <p class="hint">Slide contendo apenas a imagem 2 anexada. Sem campos numéricos.</p>
+      <div class="computed-note">A imagem será exibida ocupando toda a tela no modo de apresentação.</div>
+    `;
+  }
+  else if(key==='valuation'){
+    html = `
+      <h2>Valuation e Evolução da Cota</h2>
+      <p class="hint">Valuation da base atual e acompanhamento histórico do valor da cota.</p>
+      <div class="computed-note">Os dados do valuation (histórico da cota) são fixos neste template e não precisam ser preenchidos manualmente aqui.</div>
+    `;
+  }
+  else if(key==='auc'){
+    html = `
+      <h2>Ativos sob Custódia (AuC)</h2>
+      <p class="hint">Base de Dez/2025 e metas/realizados mensais em R$ milhões.</p>
+      <div class="field-row"><label>Base Dez/2025 (R$ MM)</label><input type="number" step="0.01" value="${DATA.aucBase}" data-field="aucBase"></div>
+      <div class="section-label">Objetivo vs. Realizado (R$ MM)</div>
+      ${monthTableHTML([
+        {label:'Objetivo', arrayName:'aucObjetivo'},
+        {label:'Realizado', arrayName:'aucRealizado'},
+      ])}
+    `;
+  }
+  else if(key==='ativacoes'){
+    html = `
+      <h2>Ativações 300K+</h2>
+      <p class="hint">Número de novas contas de alta renda ativadas por mês.</p>
+      ${monthTableHTML([{label:'Contas', arrayName:'ativacoes', step:1}])}
+    `;
+  }
+  else if(key==='origem'){
+    html = `
+      <h2>Captação Líquida por Origem</h2>
+      <p class="hint">Dinheiro novo (NNM) e transferência de custódia, em R$ milhões. Pode ser negativo.</p>
+      ${monthTableHTML([
+        {label:'NNM', arrayName:'nnm'},
+        {label:'Transferência', arrayName:'transferencia'},
+      ])}
+    `;
+  }
+  else if(key==='brutaliq'){
+    html = `
+      <h2>Captação Bruta vs. Líquida</h2>
+      <p class="hint">Captação bruta e churn (saídas, valor negativo) em R$ milhões.</p>
+      ${monthTableHTML([
+        {label:'Captação Bruta', arrayName:'bruta'},
+        {label:'Churn (Saídas)', arrayName:'churn'},
+      ])}
+    `;
+  }
+  else if(key==='roa'){
+    html = `
+      <h2>ROA — Retorno sobre os Ativos</h2>
+      <p class="hint">ROA mensal em %.</p>
+      ${monthTableHTML([{label:'ROA (%)', arrayName:'roa'}])}
+    `;
+  }
+  else if(key==='faturamento'){
+    html = `
+      <h2>Faturamento — Budget vs. Realizado</h2>
+      <p class="hint">Valores em R$ mil (K).</p>
+      ${monthTableHTML([
+        {label:'Budget Mensal', arrayName:'budget', step:1},
+        {label:'Realizado', arrayName:'faturamentoRealizado', step:1},
+      ])}
+      <div class="section-label">Mix de Faturamento (1S26)</div>
+      <div class="field-row"><label>PJ1 (%)</label><input type="number" step="0.1" value="${DATA.mixPJ1}" data-field="mixPJ1"></div>
+      <div class="field-row"><label>PJ2 (%)</label><input type="number" step="0.1" value="${DATA.mixPJ2}" data-field="mixPJ2"></div>
+      <div class="field-row"><label>Meta PJ2 no ano (%)</label><input type="number" step="0.1" value="${DATA.metaPJ2}" data-field="metaPJ2"></div>
+    `;
+  }
+  else if(key==='conclusao'){
+    html = `
+      <h2>Conclusão</h2>
+      <p class="hint">Os pontos fortes e de atenção são <b>gerados automaticamente</b> a partir dos dados de todas as abas — mudou um número, o diagnóstico muda junto.</p>
+      <div class="computed-note">Não há campos aqui: volte para as abas anteriores para mudar o que aparece neste slide de fechamento.</div>
+    `;
+  }
+
+  panel.innerHTML = html;
+  bindMonthInputs(panel);
+  bindSingleInputs(panel);
+}
+
+/* =========================================================
+   SLIDE BUILDERS (shared by preview + present mode)
+========================================================= */
+function destroyChart(id){
+  if(chartRegistry[id]){ chartRegistry[id].destroy(); delete chartRegistry[id]; }
+}
+
+function baseChartOptions(extra){
+  return Object.assign({
+    responsive:false,
+    animation:false,
+    plugins:{ legend:{display:false}, title:{display:false} },
+  }, extra);
+}
+
+function buildSlide(index, host){
+  host.innerHTML = '';
+  const der = computeDerived(DATA);
+  const el = document.createElement('div');
+  const n = String(index+1).padStart(2,'0');
+
+  if(index===0){ el.className='slide dark'; el.innerHTML = slideCapa(); }
+  else if(index===1){ el.className='slide dark'; el.style.background = "url('2.png') center/contain no-repeat"; el.innerHTML = ''; }
+  else if(index===2){ el.className='slide dark'; el.style.background = "url('3.png') center/cover no-repeat"; el.innerHTML = slideAuc(der); }
+  else if(index===3){ el.className='slide dark'; el.style.background = "url('4.png') center/cover no-repeat"; el.innerHTML = slideAtivacoes(der); }
+  else if(index===4){ el.className='slide dark'; el.style.background = "url('5.png') center/cover no-repeat"; el.innerHTML = slideOrigem(der); }
+  else if(index===5){ el.className='slide dark'; el.style.background = "url('6.png') center/cover no-repeat"; el.innerHTML = slideBrutaLiq(der); }
+  else if(index===6){ el.className='slide dark'; el.style.background = "url('7.png') center/cover no-repeat"; el.innerHTML = slideRoa(der); }
+  else if(index===7){ el.className='slide dark'; el.style.background = "url('8.png') center/cover no-repeat"; el.innerHTML = slideFaturamento(der); }
+  else if(index===8){ el.className='slide dark'; el.style.background = "url('10.png') center/cover no-repeat"; el.innerHTML = slideValuation(der); }
+
+  host.appendChild(el);
+
+  // charts (must run after DOM insertion)
+  if(index===2) chartAuc(der, host);
+  if(index===3) chartAtivacoes(host);
+  if(index===4) chartOrigem(der, host);
+  if(index===5) chartBrutaLiq(der, host);
+  if(index===6) chartRoa(host);
+  if(index===7){ chartFaturamento(host); chartMix(host); }
+  if(index===8) chartValuation(host);
+}
+
+function footerLight(n){
+  return `<div class="footer"><b>EUROSTOCK</b> XP &nbsp;·&nbsp; RESULTADOS 1S26</div><div class="pageno">${n}</div>`;
+}
+
+function slideCapa(){
+  return `
+    <div style="position:absolute;left:0;top:0;width:100%;height:100%;background:url('capa_bg.png') center/cover no-repeat;"></div>
+    
+    <!-- Títulos superiores -->
+    <div style="position:absolute;left:0;top:180px;width:100%;text-align:center;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:6px;text-transform:uppercase;text-shadow:0 4px 12px rgba(0,0,0,0.8);">JANEIRO — JUNHO 2026</div>
+    <div style="position:absolute;left:0;top:220px;width:100%;text-align:center;font-family:var(--font-head);font-weight:700;font-size:42px;color:var(--white);text-shadow:0 4px 12px rgba(0,0,0,0.8);">Apresentação de resultados fechamento 1S26</div>
+  `;
+}
+
+function slideValuation(der){
+  return `
+    <div style="position:absolute;left:52px;top:150px;width:380px;height:450px;display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-size:16px;color:var(--ice-mid);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Principais Indicadores</div>
+      <div style="font-family:var(--font-head);font-size:38px;font-weight:700;color:var(--white);margin-bottom:30px;">VALUATION <span style="font-size:20px;color:var(--gold);font-weight:400;">| 1S26</span></div>
+      
+      <div style="font-size:18px;color:var(--white);margin-bottom:10px;font-weight:bold;">AuC 30/06/2026 ➔ R$ 882.717.363</div>
+      <div style="font-size:16px;color:var(--ice-mid);margin-bottom:10px;">Valuation (1%): R$ 8.827.174</div>
+      <div style="font-size:16px;color:var(--ice-mid);margin-bottom:20px;">Cotas: 21.075</div>
+      <div style="font-size:14px;color:var(--ice-mid);margin-bottom:10px;text-transform:uppercase;">Valor Última Cota: R$ 411,00</div>
+      
+      <div style="font-family:var(--font-head);font-size:32px;font-weight:700;color:var(--gold);margin-top:20px;margin-bottom:20px;">COTA ATUAL: R$ 419,00</div>
+      
+      <div style="font-size:16px;color:var(--ice-mid);margin-bottom:8px;">Trimestre: <b style="color:var(--green);">+1,9%</b></div>
+      <div style="font-size:16px;color:var(--ice-mid);margin-bottom:8px;">12 meses: <b style="color:var(--green);">+18,4%</b></div>
+      <div style="font-size:16px;color:var(--ice-mid);">24 meses: <b style="color:var(--green);">+35,2%</b></div>
+    </div>
+    
+    <div style="position:absolute;left:450px;top:150px;width:780px;height:450px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(8px);border-radius:10px;padding:25px;">
+      <div style="font-size:14px;color:var(--ice-mid);text-align:center;margin-bottom:20px;">Valorização da Cota (R$)</div>
+      <canvas id="chart-valuation" width="730" height="370"></canvas>
+    </div>
+  `;
+}
+
+function slideSumario(der){
+  const cards = [
+    {label:'AuC — Crescimento no semestre', value: fmtSigned(der.aucGrowthPct,2)+'%', sub: fmtMoneyMM(der.aucGrowthAbs)+' vs. Dez/25', color:'var(--green)'},
+    {label:'Captação líquida acumulada', value: fmtMoneyMMabs(der.totalCapLiquidaOrigem), sub: pct(der.repNNM)+' dinheiro novo (NNM)', color:'var(--navy)'},
+    {label:'ROA médio do semestre', value: pct(der.roaMedio,2), sub: `${MONTHS[0]} ${pct(DATA.roa[0],2)} → ${MONTHS[5]} ${pct(DATA.roa[5],2)}`, color:'var(--red)'},
+    {label:'Faturamento vs. budget', value: pct(der.atingimentoFat,1), sub: fmtK(der.variacaoFat)+' vs. orçado', color: der.variacaoFat>=0 ? 'var(--green)':'var(--red)'},
+  ];
+  let cardsHtml = cards.map(c=>`
+    <div class="card" style="border-top:4px solid ${c.color};">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+      <div class="sub" style="color:${c.color}">${c.sub}</div>
+    </div>
+  `).join('');
+  return `
+    <div class="kicker">SUMÁRIO EXECUTIVO</div>
+    <div class="stitle">O semestre em quatro números</div>
+    <div style="position:absolute;left:52px;top:118px;right:52px;font-size:13px;color:var(--muted);">Leitura automática dos indicadores — atualizada conforme os dados são editados.</div>
+    <div style="position:absolute;left:52px;top:180px;right:52px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">${cardsHtml}</div>
+    <div style="position:absolute;left:52px;top:400px;right:52px;font-size:11px;font-style:italic;color:var(--muted);">Leia-se: acompanhe estes quatro números a cada fechamento para saber se o semestre está indo bem.</div>
+  `;
+}
+
+function slideAuc(der){
+  const atingimentoCards = MONTHS.map((m,i)=>{
+    const val = der.atingimento[i];
+    const isGood = val >= 100;
+    const barColor = isGood ? 'var(--gold)' : 'rgba(255,255,255,0.4)';
+    return `
+      <div style="flex:1; background:rgba(0,0,0,0.2); border-radius:8px; padding:12px 0; text-align:center; border:1px solid rgba(255,255,255,0.05);">
+        <div style="font-size:10px; font-weight:700; color:var(--ice-mid); margin-bottom:6px; letter-spacing:1px; text-transform:uppercase;">${m}</div>
+        <div style="font-size:15px; font-weight:700; color:var(--white);">${pct(val,0)}</div>
+        <div style="width:70%; height:4px; background:rgba(255,255,255,0.1); margin:8px auto 0; border-radius:2px; overflow:hidden;">
+          <div style="width:${Math.min(val,100)}%; height:100%; background:${barColor}; border-radius:2px;"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="position:absolute;left:52px;top:200px;width:610px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+      <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Objetivo vs. Realizado (R$ MM)</div>
+      <canvas id="chart-auc" width="580" height="330"></canvas>
+    </div>
+    <div class="stat-block" style="position:absolute;left:700px;top:200px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);">
+      <div class="label" style="color:var(--ice-mid);">Crescimento acumulado no semestre</div>
+      <div class="value" style="color:var(--white);">${fmtMoneyMM(der.aucGrowthAbs)}</div>
+      <div class="sub" style="color:var(--ice);">${fmtSigned(der.aucGrowthPct,2)}% frente à base de Dez/2025 (${fmtMoneyMMabs(DATA.aucBase)})</div>
+    </div>
+    <div class="card" style="position:absolute;left:700px;top:360px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);padding:22px;">
+      <div class="label" style="margin-bottom:16px;color:var(--ice-mid);">Atingimento da meta mensal (%)</div>
+      <div style="display:flex; justify-content:space-between; gap:10px;">
+        ${atingimentoCards}
+      </div>
+    </div>
+  `;
+}
+
+function slideAtivacoes(der){
+  return `
+    <div style="position:absolute;left:52px;top:200px;width:610px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+      <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Contas 300K+ ativadas por mês</div>
+      <canvas id="chart-ativ" width="580" height="330"></canvas>
+    </div>
+    <div class="card" style="position:absolute;left:700px;top:200px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);">
+      <div class="label" style="color:var(--ice-mid);">Total do semestre</div>
+      <div class="value" style="color:var(--white);">${fmt(der.totalAtivacoes,0)} contas</div>
+      <div class="sub" style="color:var(--gold)">Alta renda (300K+) ativadas</div>
+    </div>
+    <div class="card" style="position:absolute;left:700px;top:380px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);">
+      <div class="label" style="color:var(--ice-mid);">Média mensal</div>
+      <div class="value" style="color:var(--white);">${fmt(der.mediaAtivacoes,1)} contas/mês</div>
+      <div class="sub" style="color:var(--ice-mid);">Pico: ${MONTHS[DATA.ativacoes.indexOf(Math.max(...DATA.ativacoes))]} (${Math.max(...DATA.ativacoes)})</div>
+    </div>
+  `;
+}
+
+function slideOrigem(der){
+  return `
+    <div style="position:absolute;left:52px;top:200px;width:610px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+      <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Captação líquida por origem (R$ MM)</div>
+      <canvas id="chart-origem" width="580" height="330"></canvas>
+    </div>
+    <div class="stat-block" style="position:absolute;left:700px;top:200px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);">
+      <div class="label" style="color:var(--ice-mid);">Captação líquida acumulada 1S26</div>
+      <div class="value" style="color:var(--white);">${fmtMoneyMMabs(der.totalCapLiquidaOrigem)}</div>
+      <div class="sub" style="color:var(--ice-mid);">Resultado positivo em ${der.mesesPositivos} dos 6 meses</div>
+    </div>
+    <div class="card" style="position:absolute;left:700px;top:380px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);">
+      <div class="label" style="margin-bottom:10px;color:var(--ice-mid);">Representatividade na captação</div>
+      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--gold);">${pct(der.repNNM,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalNNM)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">dinheiro novo (NNM)</span></div>
+      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--white);margin-top:6px;">${pct(der.repTransf,1)}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--white);margin-left:8px;margin-right:6px;">(${fmtMoneyMMabs(der.totalTransf)})</span><span style="font-family:var(--font-body);font-size:12px;font-weight:400;color:var(--ice-mid);">transferência de custódia</span></div>
+    </div>
+  `;
+}
+
+function slideBrutaLiq(der){
+  return `
+    <div style="position:absolute;left:52px;top:200px;width:730px;height:400px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:20px;">
+      <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Bruta, Churn e Líquida por mês (R$ MM)</div>
+      <canvas id="chart-brutaliq" width="690" height="340"></canvas>
+    </div>
+    <div class="card" style="position:absolute;left:820px;top:200px;width:408px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-left:4px solid #708BEB;">
+      <div class="label" style="color:var(--ice-mid);">Captação bruta (1S26)</div>
+      <div class="value" style="font-size:21px;color:var(--white);">${fmtMoneyMMabs(der.totalBruta)}</div>
+    </div>
+    <div class="card" style="position:absolute;left:820px;top:305px;width:408px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-left:4px solid var(--red);">
+      <div class="label" style="color:var(--ice-mid);">Churn (1S26)</div>
+      <div class="value" style="font-size:21px;color:var(--red);">${fmtMoneyMM(der.totalChurn)}</div>
+    </div>
+    <div class="card" style="position:absolute;left:820px;top:410px;width:408px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-left:4px solid var(--gold);">
+      <div class="label" style="color:var(--ice-mid);">Captação líquida (1S26)</div>
+      <div class="value" style="font-size:21px;color:var(--gold);">${fmtMoneyMMabs(der.totalLiquidaBC)}</div>
+    </div>
+  `;
+}
+
+function slideRoa(der){
+  return `
+    <div style="position:absolute;left:52px;top:200px;width:610px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+      <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">ROA mensal (%)</div>
+      <canvas id="chart-roa" width="580" height="330"></canvas>
+    </div>
+    <div class="stat-block" style="position:absolute;left:700px;top:200px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);">
+      <div class="label" style="color:var(--ice-mid);">ROA médio do semestre</div>
+      <div class="value" style="color:var(--white);">${pct(der.roaMedio,2)}</div>
+      <div class="sub" style="color:var(--ice-mid);">Pico: ${MONTHS[der.roaMaxIdx]} (${pct(DATA.roa[der.roaMaxIdx],2)}) · Menor: ${MONTHS[der.roaMinIdx]} (${pct(DATA.roa[der.roaMinIdx],2)})</div>
+    </div>
+    <div class="card" style="position:absolute;left:700px;top:380px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);">
+      <div class="label" style="margin-bottom:8px;color:var(--ice-mid);">Leitura do indicador</div>
+      <div style="font-size:13px;color:var(--white);line-height:1.5;">${roaReading(der)}</div>
+    </div>
+  `;
+}
+function roaReading(der){
+  const first = DATA.roa[0], last = DATA.roa[5];
+  if(last < first) return `A rentabilidade caiu de ${pct(first,2)} para ${pct(last,2)} ao longo do semestre — vale investigar as causas para o 2S26.`;
+  if(last > first) return `A rentabilidade melhorou de ${pct(first,2)} para ${pct(last,2)} ao longo do semestre.`;
+  return `A rentabilidade se manteve estável em torno de ${pct(der.roaMedio,2)} ao longo do semestre.`;
+}
+
+function slideFaturamento(der){
+  return `
+    <div style="position:absolute;left:52px;top:170px;width:1176px;height:320px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+      <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Realizado vs. Budget (R$ K)</div>
+      <canvas id="chart-fat" width="1146" height="270"></canvas>
+    </div>
+    <div class="card" style="position:absolute;left:52px;top:515px;width:279px;height:140px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);">
+      <div class="label" style="color:var(--ice-mid);">Atingimento do Semestre</div>
+      <div class="value" style="color:var(--white);font-size:24px;margin:12px 0 8px;">${pct(der.atingimentoFat,1)}</div>
+      <div class="sub" style="color:var(--ice-mid);font-weight:400;font-size:11px;">Realizado / Budget<br>${fmtK(der.totalRealizado)} de ${fmtK(der.totalBudget)}</div>
+    </div>
+    <div class="card" style="position:absolute;left:351px;top:515px;width:279px;height:140px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid ${der.variacaoFat>=0?'var(--green)':'var(--red)'};">
+      <div class="label" style="color:var(--ice-mid);">Variação Acumulada</div>
+      <div class="value" style="color:${der.variacaoFat>=0?'var(--green)':'var(--red)'};font-size:24px;margin:12px 0 8px;">${fmtK(der.variacaoFat)}</div>
+      <div class="sub" style="color:var(--ice-mid);font-weight:400;font-size:11px;">${der.variacaoFat>=0?'acima':'abaixo'} do orçado</div>
+    </div>
+    <div class="card" style="position:absolute;left:650px;top:515px;width:279px;height:140px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);">
+      <div class="label" style="color:var(--ice-mid);">Pior e Melhor Mês</div>
+      <div style="font-size:13px;color:var(--white);margin-top:16px;"><b style="color:var(--green);">${MONTHS[der.bestIdx]}:</b> ${fmtSigned(der.diffMensalPct[der.bestIdx],1)}% vs. bud</div>
+      <div style="font-size:13px;color:var(--white);margin-top:10px;"><b style="color:var(--red);">${MONTHS[der.worstIdx]}:</b> ${fmtSigned(der.diffMensalPct[der.worstIdx],1)}% vs. bud</div>
+    </div>
+    <div class="card" style="position:absolute;left:949px;top:515px;width:279px;height:140px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);display:flex;align-items:center;padding:10px;">
+      <div style="width:105px;height:105px;display:flex;align-items:center;">
+        <canvas id="chart-mix" width="105" height="105"></canvas>
+      </div>
+      <div style="flex:1;padding-left:14px;font-size:11px;color:var(--white);">
+        <div class="label" style="color:var(--ice-mid);margin-bottom:8px;">Mix de Faturamento</div>
+        Meta de PJ2: <b style="color:var(--gold);font-size:13px;">${pct(DATA.metaPJ2,0)}</b><br><br>
+        Mix Atual: <b style="color:var(--white);font-size:13px;">${pct(DATA.mixPJ2,1)}</b>
+      </div>
+    </div>
+  `;
+}
+
+function slideConclusao(der){
+  const forte = [];
+  if(der.totalCapLiquidaOrigem>0) forte.push(`Captação líquida de ${fmtMoneyMMabs(der.totalCapLiquidaOrigem)}, com ${pct(der.repNNM,1)} vindo de dinheiro novo (NNM).`);
+  if(der.totalAtivacoes>0) forte.push(`${fmt(der.totalAtivacoes,0)} novas contas de alta renda (300K+) ativadas, média de ${fmt(der.mediaAtivacoes,1)} por mês.`);
+  if(der.aucGrowthAbs>0) forte.push(`AuC cresceu no semestre, ${fmtSigned(der.aucGrowthPct,2)}% acumulado.`);
+  if(forte.length===0) forte.push('Nenhum destaque positivo identificado com os dados atuais.');
+
+  const atencao = [];
+  if(DATA.roa[5] < DATA.roa[0]) atencao.push(`ROA caiu de ${pct(DATA.roa[0],2)} para ${pct(DATA.roa[5],2)} entre ${MONTHS[0]} e ${MONTHS[5]}.`);
+  if(der.variacaoFat<0) atencao.push(`Faturamento fechou em ${pct(der.atingimentoFat,1)} do budget (${fmtK(der.variacaoFat)}).`);
+  else if(der.variacaoFat>0) forte.push(`Faturamento superou o budget em ${fmtK(der.variacaoFat)} (${pct(der.atingimentoFat,1)} do orçado).`);
+  if(der.churnRatio>50) atencao.push(`Churn consumiu ${pct(der.churnRatio,0)} da captação bruta.`);
+  if(atencao.length===0) atencao.push('Nenhum ponto crítico identificado com os dados atuais.');
+
+  return `
+    <div class="brandmark">EUROSTOCK <span>XP</span></div>
+    <div class="kicker">CONCLUSÃO</div>
+    <div class="stitle">O que sustenta o negócio, e o que exige atenção</div>
+    <div style="position:absolute;left:52px;top:150px;width:568px;height:330px;background:#232C63;border-radius:9px;padding:22px 26px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:1px;color:var(--green);margin-bottom:14px;">PONTOS FORTES</div>
+      ${forte.map(f=>`<div style="font-size:12.5px;color:var(--ice);line-height:1.5;margin-bottom:12px;">• ${f}</div>`).join('')}
+    </div>
+    <div style="position:absolute;left:648px;top:150px;width:568px;height:330px;background:#232C63;border-radius:9px;padding:22px 26px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:1px;color:var(--gold);margin-bottom:14px;">PONTOS DE ATENÇÃO</div>
+      ${atencao.map(f=>`<div style="font-size:12.5px;color:var(--ice);line-height:1.5;margin-bottom:12px;">• ${f}</div>`).join('')}
+    </div>
+    <div style="position:absolute;left:52px;top:510px;right:52px;height:1px;background:#3A4380;"></div>
+    <div style="position:absolute;left:52px;top:528px;right:52px;font-size:13px;font-style:italic;font-weight:700;color:var(--gold);">Gerado automaticamente a partir dos dados preenchidos — atualize os números e este diagnóstico muda com eles.</div>
+  `;
+}
+
+/* =========================================================
+   CHARTS
+========================================================= */
+function chartAuc(der, host){
+  const ctx = host.querySelector('#chart-auc');
+  if(!ctx) return;
+  const rKey = host.id + '-auc';
+  destroyChart(rKey);
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'line',
+    plugins: [ChartDataLabels],
+    data:{ labels:MONTHS, datasets:[
+      {
+        label:'Objetivo', data:DATA.aucObjetivo, borderColor:'#FFFFFF', backgroundColor:'#FFFFFF', tension:0, pointRadius:4, borderWidth:3,
+        datalabels:{ display:false }
+      },
+      {
+        label:'Realizado', data:DATA.aucRealizado, borderColor:'#FAC017', backgroundColor:'#FAC017', tension:0, pointRadius:4, borderWidth:3,
+        datalabels:{
+          align: 'top', anchor: 'end', offset: 6,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 4,
+          color: '#fff',
+          font: {size: 10, weight: 'bold'},
+          padding: {top:3, bottom:3, left:5, right:5},
+          formatter: v => Math.round(v)
+        }
+      },
+    ]},
+    options: baseChartOptions({
+      layout:{ padding:{top:25} },
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11},color:'rgba(255,255,255,0.8)'}},
+        datalabels: {}
+      },
+      scales:{ y:{ grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
+    })
+  });
+}
+function chartAtivacoes(host){
+  const ctx = host.querySelector('#chart-ativ');
+  if(!ctx) return;
+  const rKey = host.id + '-ativ';
+  destroyChart(rKey);
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'bar',
+    plugins: [ChartDataLabels],
+    data:{ labels:MONTHS, datasets:[
+      {
+        label:'Ativações', data:DATA.ativacoes, backgroundColor:'#FAC017', borderRadius:4,
+        datalabels:{
+          align: 'end', anchor: 'end', offset: 4,
+          color: '#FFF',
+          font: {size: 13, weight: 'bold'},
+          formatter: v => Math.round(v)
+        }
+      },
+    ]},
+    options: baseChartOptions({
+      layout:{ padding:{top:25} },
+      plugins:{
+        legend: {display: false},
+        datalabels: {}
+      },
+      scales:{ y:{ grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
+    })
+  });
+}
+function chartOrigem(der, host){
+  const ctx = host.querySelector('#chart-origem');
+  if(!ctx) return;
+  const rKey = host.id + '-origem';
+  destroyChart(rKey);
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:MONTHS, datasets:[
+      {label:'Dinheiro Novo (NNM)', data:DATA.nnm, backgroundColor:'#FAC017', stack:'s', borderRadius:3},
+      {label:'Transferência', data:DATA.transferencia, backgroundColor:'#C7D0EC', stack:'s', borderRadius:3}
+    ]},
+    options: baseChartOptions({
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}}
+      },
+      scales:{ y:{ stacked:true, grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ stacked:true, grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
+    })
+  });
+}
+function chartBrutaLiq(der, host){
+  const ctx = host.querySelector('#chart-brutaliq');
+  if(!ctx) return;
+  const rKey = host.id + '-brutaliq';
+  destroyChart(rKey);
+  chartRegistry[rKey] = new Chart(ctx, {
+    type: 'bar',
+    data:{ labels:MONTHS, datasets:[
+      {type:'bar', label:'Captação Bruta', data:DATA.bruta, backgroundColor:'#708BEB', order:2, borderRadius:3},
+      {type:'bar', label:'Churn (Saídas)', data:DATA.churn, backgroundColor:'#C4433B', order:2, borderRadius:3},
+      {type:'line', label:'Captação Líquida', data:der.capLiquidaBrutaChurn, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:3, pointRadius:5, pointBackgroundColor:'#FAC017', pointBorderColor:'#fff', pointBorderWidth:2, tension:0, order:0},
+    ]},
+    options: baseChartOptions({
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}}},
+      scales:{ y:{ grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
+    })
+  });
+}
+function chartRoa(host){
+  const ctx = host.querySelector('#chart-roa');
+  if(!ctx) return;
+  const rKey = host.id + '-roa';
+  destroyChart(rKey);
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'line',
+    plugins: [ChartDataLabels],
+    data:{ labels:MONTHS, datasets:[{data:DATA.roa, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:3, pointRadius:5, tension:0}] },
+    options: baseChartOptions({
+      layout:{ padding:{top:25} },
+      plugins:{
+        legend:{display:false},
+        datalabels:{
+          display: true,
+          align: 'top', anchor: 'end', offset: 6,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 4,
+          color: '#fff',
+          font: {size: 10, weight: 'bold'},
+          padding: {top:3, bottom:3, left:5, right:5},
+          formatter: v => v.toFixed(2)+'%'
+        }
+      },
+      scales:{ y:{ grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)', callback:v=>v+'%'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
+    })
+  });
+}
+function chartFaturamento(host){
+  const ctx = host.querySelector('#chart-fat');
+  if(!ctx) return;
+  const rKey = host.id + '-fat';
+  destroyChart(rKey);
+  chartRegistry[rKey] = new Chart(ctx, {
+    data:{ labels:MONTHS, datasets:[
+      {type:'bar', label:'Realizado', data:DATA.faturamentoRealizado, backgroundColor:'#708BEB', borderRadius:3},
+      {type:'line', label:'Budget Mensal', data:DATA.budget, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:2, borderDash:[5,4], pointRadius:0},
+    ]},
+    options: baseChartOptions({
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}}},
+      scales:{ y:{ grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
+    })
+  });
+}
+function chartMix(host){
+  const ctx = host.querySelector('#chart-mix');
+  if(!ctx) return;
+  const rKey = host.id + '-mix';
+  destroyChart(rKey);
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels:['PJ1','PJ2'], datasets:[{data:[DATA.mixPJ1, DATA.mixPJ2], backgroundColor:['#708BEB','#FAC017'], borderWidth:0}] },
+    options: baseChartOptions({
+      cutout:'65%',
+      plugins:{legend:{display:true,position:'right',labels:{boxWidth:9,font:{size:11},color:'rgba(255,255,255,0.8)'}}}
+    })
+  });
+}
+
+function chartValuation(host){
+  const ctx = host.querySelector('#chart-valuation');
+  if(!ctx) return;
+  const rKey = host.id + '-valuation';
+  destroyChart(rKey);
+  
+  const vLabels = ['set/22','dez/22','mar/23','jun/23','set/23','dez/23','mar/24','jun/24','set/24','dez/24','mar/25','jun/25','set/25','dez/25','mar/26','jun/26'];
+  const vData = [257, 255, 247, 268, 276, 291, 294, 310, 317, 318, 328, 354, 374, 413, 411, 419];
+  const vVar = ['-','-0,5%','-3,3%','+8,7%','+2,8%','+5,4%','+1,3%','+5,3%','+2,4%','+0,2%','+3,2%','+8,0%','+5,7%','+10,2%','-0,4%','+1,9%'];
+  
+  chartRegistry[rKey] = new Chart(ctx, {
+    type:'line',
+    plugins: [ChartDataLabels],
+    data:{ labels:vLabels, datasets:[
+      {
+        data:vData, borderColor:'#708BEB', backgroundColor:'#708BEB', borderWidth:3, pointRadius:4, tension:0.3,
+        datalabels:{
+          display: true,
+          align: 'top', anchor: 'end', offset: 4,
+          color: '#FFF',
+          font: {size: 11, weight: 'bold'},
+          formatter: (v, ctx) => [v, vVar[ctx.dataIndex]],
+          textAlign: 'center'
+        }
+      }
+    ] },
+    options: baseChartOptions({
+      layout:{ padding:{top:45} },
+      plugins:{
+        legend:{display:false},
+        datalabels: {}
+      },
+      scales:{ 
+        y:{ min: 200, max: 450, grid:{color:'rgba(255,255,255,0.05)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, 
+        x:{ grid:{color:'rgba(255,255,255,0.05)'}, ticks:{font:{size:10},color:'#FFFFFF'} } 
+      }
+    })
+  });
+}
+
+/* =========================================================
+   PREVIEW + PRESENT RENDERING
+========================================================= */
+function renderPreview(){
+  const frame = document.querySelector('.preview-frame');
+  const inner = document.getElementById('previewInner');
+  const scale = frame.clientWidth / 1280;
+  inner.style.transform = `scale(${scale})`;
+  buildSlide(currentTab, inner);
+}
+
+function renderPresent(){
+  const inner = document.getElementById('presentInner');
+  // Calcula o scale exato para o slide ocupar 100% da tela preservando a proporção 16:9
+  const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  inner.style.transform = `scale(${scale})`;
+  buildSlide(presentIndex, inner);
+  document.getElementById('presentCounter').textContent = `${presentIndex+1} / ${TABS.length}`;
+  document.getElementById('prevBtn').style.opacity = presentIndex === 0 ? '0.2' : '1';
+  document.getElementById('prevBtn').style.pointerEvents = presentIndex === 0 ? 'none' : 'auto';
+  document.getElementById('nextBtn').style.opacity = presentIndex === TABS.length - 1 ? '0.2' : '1';
+  document.getElementById('nextBtn').style.pointerEvents = presentIndex === TABS.length - 1 ? 'none' : 'auto';
+}
+
+/* =========================================================
+   EVENTS
+========================================================= */
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('Restaurar todos os campos para os dados originais do fechamento 1S26? Suas edições salvas serão substituídas.')){
+    DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    renderEditor(); renderPreview(); scheduleSave();
+  }
+});
+
+document.getElementById('presentBtn').addEventListener('click', ()=>{
+  presentIndex = currentTab;
+  const overlay = document.getElementById('presentOverlay');
+  overlay.classList.add('active');
+  
+  // Abre tela cheia no elemento de apresentação
+  if (overlay.requestFullscreen) {
+    overlay.requestFullscreen();
+  } else if (overlay.webkitRequestFullscreen) {
+    overlay.webkitRequestFullscreen(); // Safari
+  }
+  
+  renderPresent();
+});
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(presentIndex > 0) presentIndex--;
+  renderPresent();
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(presentIndex < TABS.length - 1) presentIndex++;
+  renderPresent();
+});
+document.addEventListener('keydown', (e)=>{
+  const overlay = document.getElementById('presentOverlay');
+  if(!overlay.classList.contains('active')) return;
+  if(e.key==='ArrowRight' && presentIndex < TABS.length - 1){ presentIndex++; renderPresent(); }
+  if(e.key==='ArrowLeft' && presentIndex > 0){ presentIndex--; renderPresent(); }
+  if(e.key==='Escape'){
+    overlay.classList.remove('active');
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    document.getElementById('presentOverlay').classList.remove('active');
+  }
+});
+window.addEventListener('resize', ()=>{
+  renderPreview();
+  if(document.getElementById('presentOverlay').classList.contains('active')) renderPresent();
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+async function init(){
+  await loadData();
+  renderTabs();
+  renderEditor();
+  renderPreview();
+}
+init();
+</script>
+</body>
+</html>
