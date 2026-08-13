@@ -822,7 +822,7 @@ function chartAuc(der, host){
       {
         label:'Objetivo', data:DATA.aucObjetivo, borderColor:'#FFFFFF', backgroundColor:'#FFFFFF', tension:0, pointRadius:4, borderWidth:3,
         datalabels:{
-          align: 'bottom', anchor: 'center', offset: 8,
+          align: 'top', anchor: 'end', offset: 6,
           backgroundColor: 'rgba(255,255,255,0.15)',
           borderRadius: 4,
           color: '#fff',
@@ -890,13 +890,37 @@ function chartOrigem(der, host){
   destroyChart(rKey);
   chartRegistry[rKey] = new Chart(ctx, {
     type:'bar',
+    plugins: [ChartDataLabels],
     data:{ labels:MONTHS, datasets:[
-      {label:'Dinheiro Novo (NNM)', data:DATA.nnm, backgroundColor:'#FAC017', stack:'s', borderRadius:3},
-      {label:'Transferência', data:DATA.transferencia, backgroundColor:'#C7D0EC', stack:'s', borderRadius:3}
+      {
+        label:'Dinheiro Novo (NNM)', data:DATA.nnm, backgroundColor:'#FAC017', stack:'s', borderRadius:3,
+        datalabels:{
+          align: 'center', anchor: 'center',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 3,
+          color: '#fff',
+          font: {size: 9, weight: 'bold'},
+          padding: {top:2, bottom:2, left:4, right:4},
+          formatter: v => v.toFixed(2)
+        }
+      },
+      {
+        label:'Transferência', data:DATA.transferencia, backgroundColor:'#C7D0EC', stack:'s', borderRadius:3,
+        datalabels:{
+          align: 'center', anchor: 'center',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 3,
+          color: '#fff',
+          font: {size: 9, weight: 'bold'},
+          padding: {top:2, bottom:2, left:4, right:4},
+          formatter: v => v.toFixed(2)
+        }
+      }
     ]},
     options: baseChartOptions({
       plugins:{
-        legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}}
+        legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}},
+        datalabels: {}
       },
       scales:{ y:{ stacked:true, grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ stacked:true, grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
     })
