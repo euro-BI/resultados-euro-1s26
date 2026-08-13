@@ -73,17 +73,17 @@ Esta estrutura foi montada para refletir os números do primeiro semestre de 202
 
 | Mês (2026) | Captação Bruta | Churn (Saídas) | Captação Líquida |
 | :--- | :--- | :--- | :--- |
-| **Janeiro** | R$ 79,90 MM | R$ -55,30 MM | R$ 24,59 MM |
-| **Fevereiro** | R$ 56,18 MM | R$ -49,49 MM | R$ 6,68 MM |
-| **Março** | R$ 64,09 MM | R$ -54,97 MM | R$ 9,12 MM |
-| **Abril** | R$ 66,25 MM | R$ -58,32 MM | R$ 7,93 MM |
+| **Janeiro** | R$ 54,39 MM | R$ -56,45 MM | R$ -2,06 MM |
+| **Fevereiro** | R$ 53,38 MM | R$ -50,72 MM | R$ 2,66 MM |
+| **Março** | R$ 61,94 MM | R$ -55,03 MM | R$ 6,91 MM |
+| **Abril** | R$ 63,08 MM | R$ -58,32 MM | R$ 4,76 MM |
 | **Maio** | R$ 66,23 MM | R$ -40,16 MM | R$ 26,07 MM |
-| **Junho** | R$ 58,03 MM | R$ -53,61 MM | R$ 4,42 MM |
+| **Junho** | R$ 57,72 MM | R$ -53,61 MM | R$ 4,11 MM |
 
 **Destaque do Slide (Acumulado 1S26):**
-- Total Captação Bruta: `R$ 390,68 MM`
-- Total Churn: `R$ -311,85 MM`
-- Saldo (Líquida): `R$ 78,81 MM`
+- Total Captação Bruta: `R$ 356,74 MM`
+- Total Churn: `R$ -314,29 MM`
+- Saldo (Líquida): `R$ 42,45 MM`
 
 ---
 

@@ -232,8 +232,8 @@ const DEFAULT_DATA = {
   ativacoes: [5,3,6,7,6,4],
   nnm: [-1.85,3.00,11.93,9.36,22.28,-2.75],
   transferencia: [-0.22,-0.34,-5.03,-4.60,3.79,6.87],
-  bruta: [79.90,56.18,64.09,66.25,66.23,58.03],
-  churn: [-55.30,-49.49,-54.97,-58.32,-40.16,-53.61],
+  bruta: [54.39,53.38,61.94,63.08,66.23,57.72],
+  churn: [-56.45,-50.72,-55.03,-58.32,-40.16,-53.61],
   roa: [0.82,0.92,0.85,1.06,0.90,0.86],
   budget: [615.428,630.532,645.500,659.523,673.548,687.612],
   faturamentoRealizado: [594.128,660.701,615.303,760.725,658.229,632.221],
@@ -908,7 +908,7 @@ function chartOrigem(der, host){
           color: '#fff',
           font: {size: 9, weight: 'bold'},
           padding: {top:2, bottom:2, left:4, right:4},
-          formatter: v => v.toFixed(2)
+          formatter: v => v.toFixed(1)
         }
       },
       {
@@ -920,7 +920,7 @@ function chartOrigem(der, host){
           color: '#fff',
           font: {size: 9, weight: 'bold'},
           padding: {top:2, bottom:2, left:4, right:4},
-          formatter: v => v.toFixed(2)
+          formatter: v => v.toFixed(1)
         }
       }
     ]},
@@ -940,13 +940,40 @@ function chartBrutaLiq(der, host){
   destroyChart(rKey);
   chartRegistry[rKey] = new Chart(ctx, {
     type: 'bar',
+    plugins: [ChartDataLabels],
     data:{ labels:MONTHS, datasets:[
-      {type:'bar', label:'Captação Bruta', data:DATA.bruta, backgroundColor:'#708BEB', order:2, borderRadius:3},
-      {type:'bar', label:'Churn (Saídas)', data:DATA.churn, backgroundColor:'#C4433B', order:2, borderRadius:3},
-      {type:'line', label:'Captação Líquida', data:der.capLiquidaBrutaChurn, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:3, pointRadius:5, pointBackgroundColor:'#FAC017', pointBorderColor:'#fff', pointBorderWidth:2, tension:0, order:0},
+      {type:'bar', label:'Captação Bruta', data:DATA.bruta, backgroundColor:'#708BEB', order:2, borderRadius:3,
+        datalabels:{
+          align: 'end', anchor: 'end', offset: 4,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 3,
+          color: '#fff',
+          font: {size: 9, weight: 'bold'},
+          padding: {top:2, bottom:2, left:4, right:4},
+          formatter: v => v.toFixed(1)
+        }
+      },
+      {type:'bar', label:'Churn (Saídas)', data:DATA.churn, backgroundColor:'#C4433B', order:2, borderRadius:3,
+        datalabels:{
+          align: 'start', anchor: 'start', offset: 4,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          borderRadius: 3,
+          color: '#fff',
+          font: {size: 9, weight: 'bold'},
+          padding: {top:2, bottom:2, left:4, right:4},
+          formatter: v => v.toFixed(1)
+        }
+      },
+      {type:'line', label:'Captação Líquida', data:der.capLiquidaBrutaChurn, borderColor:'#FAC017', backgroundColor:'#FAC017', borderWidth:3, pointRadius:5, pointBackgroundColor:'#FAC017', pointBorderColor:'#fff', pointBorderWidth:2, tension:0, order:0,
+        datalabels: { display: false }
+      },
     ]},
     options: baseChartOptions({
-      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}}},
+      layout:{ padding:{top:25, bottom:10} },
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11},color:'rgba(255,255,255,0.8)'}},
+        datalabels: {}
+      },
       scales:{ y:{ grid:{color:'rgba(255,255,255,0.08)'}, ticks:{font:{size:10},color:'rgba(255,255,255,0.5)'} }, x:{ grid:{display:false}, ticks:{font:{size:11,weight:'bold'},color:'#FFFFFF'} } }
     })
   });
