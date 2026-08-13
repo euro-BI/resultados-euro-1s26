@@ -641,16 +641,16 @@ function slideAuc(der){
   }).join('');
 
   return `
-    <div style="position:absolute;left:52px;top:200px;width:610px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+    <div style="position:absolute;left:52px;top:200px;width:710px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
       <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Objetivo vs. Realizado (R$ MM)</div>
-      <canvas id="chart-auc" width="580" height="330"></canvas>
+      <canvas id="chart-auc" width="680" height="330"></canvas>
     </div>
-    <div class="stat-block" style="position:absolute;left:700px;top:200px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);">
+    <div class="stat-block" style="position:absolute;left:800px;top:200px;width:428px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);">
       <div class="label" style="color:var(--ice-mid);">Crescimento acumulado no semestre</div>
       <div class="value" style="color:var(--white);">${fmtMoneyMM(der.aucGrowthAbs)}</div>
       <div class="sub" style="color:var(--ice);">${fmtSigned(der.aucGrowthPct,2)}% frente à base de Dez/2025 (${fmtMoneyMMabs(DATA.aucBase)})</div>
     </div>
-    <div class="card" style="position:absolute;left:700px;top:360px;width:528px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);padding:22px;">
+    <div class="card" style="position:absolute;left:800px;top:360px;width:428px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);padding:22px;">
       <div class="label" style="margin-bottom:16px;color:var(--ice-mid);">Atingimento da meta mensal (%)</div>
       <div style="display:flex; justify-content:space-between; gap:10px;">
         ${atingimentoCards}
@@ -663,21 +663,21 @@ function slideAtivacoes(der){
   const assessores = 18;
   const mediaAssessor = der.totalAtivacoes / assessores;
   return `
-    <div style="position:absolute;left:52px;top:200px;width:610px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
+    <div style="position:absolute;left:52px;top:200px;width:710px;height:380px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:10px;padding:15px;">
       <div style="font-size:12px;color:var(--ice-mid);text-align:center;margin-bottom:6px;">Contas 300K+ ativadas por mês</div>
-      <canvas id="chart-ativ" width="580" height="330"></canvas>
+      <canvas id="chart-ativ" width="680" height="330"></canvas>
     </div>
-    <div class="card" style="position:absolute;left:700px;top:200px;width:528px;height:114px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);display:flex;flex-direction:column;justify-content:center;">
+    <div class="card" style="position:absolute;left:800px;top:200px;width:428px;height:114px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--gold);display:flex;flex-direction:column;justify-content:center;">
       <div class="label" style="color:var(--ice-mid);">Total do semestre</div>
       <div class="value" style="color:var(--white);">${fmt(der.totalAtivacoes,0)} contas</div>
       <div class="sub" style="color:var(--gold)">Alta renda (300K+) ativadas</div>
     </div>
-    <div class="card" style="position:absolute;left:700px;top:333px;width:528px;height:114px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);display:flex;flex-direction:column;justify-content:center;">
+    <div class="card" style="position:absolute;left:800px;top:333px;width:428px;height:114px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid var(--ice-mid);display:flex;flex-direction:column;justify-content:center;">
       <div class="label" style="color:var(--ice-mid);">Média mensal</div>
       <div class="value" style="color:var(--white);">${fmt(der.mediaAtivacoes,1)} contas/mês</div>
       <div class="sub" style="color:var(--ice-mid);">Pico: ${MONTHS[DATA.ativacoes.indexOf(Math.max(...DATA.ativacoes))]} (${Math.max(...DATA.ativacoes)})</div>
     </div>
-    <div class="card" style="position:absolute;left:700px;top:466px;width:528px;height:114px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid #8891C4;display:flex;flex-direction:column;justify-content:center;">
+    <div class="card" style="position:absolute;left:800px;top:466px;width:428px;height:114px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-top:4px solid #8891C4;display:flex;flex-direction:column;justify-content:center;">
       <div class="label" style="color:var(--ice-mid);">Média por Assessor</div>
       <div class="value" style="color:var(--white);">${fmt(mediaAssessor,1)} contas/assessor</div>
       <div class="sub" style="color:var(--ice-mid);">Considerando base de ${assessores} assessores no semestre</div>
